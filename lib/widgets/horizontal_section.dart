@@ -4,6 +4,9 @@ class HorizontalSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
   final VoidCallback? onSeeMorePressed;
+  final String? seeMoreText;
+  final VoidCallback? onSeeMoreTap;
+  final Widget? trailing;
   final double itemWidth;
   final double itemHeight;
   final double spacing;
@@ -13,6 +16,9 @@ class HorizontalSection extends StatelessWidget {
     required this.title,
     required this.children,
     this.onSeeMorePressed,
+    this.seeMoreText,
+    this.onSeeMoreTap,
+    this.trailing,
     this.itemWidth = 150,
     this.itemHeight = 200,
     this.spacing = 12,
@@ -33,19 +39,27 @@ class HorizontalSection extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
+              Row(
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  ),
+                  if (trailing != null) ...[
+                    SizedBox(width: 8),
+                    trailing!,
+                  ],
+                ],
               ),
-              if (onSeeMorePressed != null)
+              if (onSeeMorePressed != null || onSeeMoreTap != null)
                 TextButton(
-                  onPressed: onSeeMorePressed,
+                  onPressed: onSeeMoreTap ?? onSeeMorePressed,
                   child: Text(
-                    'すべて表示',
+                    seeMoreText ?? 'すべて表示',
                     style: TextStyle(
                       color: accentColor,
                       fontWeight: FontWeight.bold,

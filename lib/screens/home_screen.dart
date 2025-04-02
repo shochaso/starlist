@@ -30,26 +30,61 @@ class HomeScreen extends StatelessWidget {
       Star(
         id: '1',
         name: 'YOASOBI',
-        category: 'ミュージシャン',
+        platforms: ['ミュージシャン'],
+        genres: ['音楽', 'J-POP'],
         rank: 'スーパー',
         followers: 1500000,
         imageUrl: 'https://example.com/yoasobi.jpg',
+        isVerified: true,
+        socialAccounts: [
+          SocialAccount(
+            platform: 'X (Twitter)',
+            username: '@YOASOBI_staff',
+            url: 'https://twitter.com/YOASOBI_staff',
+            isVerified: true,
+          ),
+          SocialAccount(
+            platform: 'YouTube',
+            username: 'Ayase / YOASOBI',
+            url: 'https://www.youtube.com/c/Ayase_YOASOBI',
+            isVerified: true,
+          ),
+        ],
+        genreRatings: {
+          '音楽': GenreRating(
+            level: 9,
+            points: 950,
+            lastUpdated: DateTime.now().subtract(Duration(days: 7)),
+          ),
+        },
       ),
       Star(
         id: '2',
         name: 'King & Prince',
-        category: 'アイドル',
+        platforms: ['アイドル', 'ミュージシャン'],
+        genres: ['音楽', 'J-POP', 'アイドル'],
         rank: 'プラチナ',
         followers: 850000,
         imageUrl: 'https://example.com/kingandprince.jpg',
+        isVerified: true,
+        socialAccounts: [
+          SocialAccount(
+            platform: 'X (Twitter)',
+            username: '@kingandprince_j',
+            url: 'https://twitter.com/kingandprince_j',
+            isVerified: true,
+          ),
+        ],
       ),
       Star(
         id: '3',
         name: 'バスケットボールスタイル',
-        category: 'YouTuber',
+        platforms: ['YouTuber', '実況者'],
+        genres: ['ゲーム', 'スポーツ'],
         rank: 'レギュラー',
         followers: 350000,
         imageUrl: 'https://example.com/basketballstyle.jpg',
+        isVerified: false,
       ),
     ];
 
@@ -78,10 +113,78 @@ class HomeScreen extends StatelessWidget {
     final List<Map<String, dynamic>> categories = [
       {'name': 'YouTuber', 'icon': Icons.play_circle_filled, 'color': Colors.red.shade200},
       {'name': 'ミュージシャン', 'icon': Icons.music_note, 'color': Colors.blue.shade200},
-      {'name': 'アーティスト', 'icon': Icons.palette, 'color': Colors.purple.shade200},
+      {'name': 'クリエイター', 'icon': Icons.create, 'color': Colors.purple.shade200},
       {'name': 'モデル', 'icon': Icons.face, 'color': Colors.orange.shade200},
       {'name': 'ストリーマー', 'icon': Icons.stream, 'color': Colors.green.shade200},
       {'name': 'イラストレーター', 'icon': Icons.brush, 'color': Colors.yellow.shade200},
+    ];
+
+    // 検索履歴に基づくおすすめ
+    final List<Star> searchBasedRecommendations = [
+      Star(
+        id: '101',
+        name: 'Eve',
+        platforms: ['ミュージシャン'],
+        genres: ['音楽', 'J-POP', 'アニメ'],
+        rank: 'A',
+        followers: 850000,
+        imageUrl: 'https://example.com/eve.jpg',
+        isVerified: true,
+      ),
+      Star(
+        id: '102',
+        name: 'ずっと真夜中でいいのに。',
+        platforms: ['ミュージシャン'],
+        genres: ['音楽', 'J-POP', 'ロック'],
+        rank: 'A',
+        followers: 780000,
+        imageUrl: 'https://example.com/zutomayo.jpg',
+        isVerified: true,
+      ),
+      Star(
+        id: '103',
+        name: 'Vaundy',
+        platforms: ['ミュージシャン'],
+        genres: ['音楽', 'J-POP'],
+        rank: 'A',
+        followers: 720000,
+        imageUrl: 'https://example.com/vaundy.jpg',
+        isVerified: true,
+      ),
+    ];
+    
+    // SNS連携に基づくおすすめ
+    final List<Star> snsBasedRecommendations = [
+      Star(
+        id: '201',
+        name: '水溜りボンド',
+        platforms: ['YouTuber'],
+        genres: ['エンタメ', 'お笑い'],
+        rank: 'A',
+        followers: 920000,
+        imageUrl: 'https://example.com/mizutamari.jpg',
+        isVerified: true,
+      ),
+      Star(
+        id: '202',
+        name: 'あまね',
+        platforms: ['TikToker'],
+        genres: ['ダンス', 'エンタメ'],
+        rank: 'B+',
+        followers: 560000,
+        imageUrl: 'https://example.com/amane.jpg',
+        isVerified: true,
+      ),
+      Star(
+        id: '203',
+        name: 'ヒカキン',
+        platforms: ['YouTuber'],
+        genres: ['エンタメ'],
+        rank: 'S',
+        followers: 2500000,
+        imageUrl: 'https://example.com/hikakin.jpg',
+        isVerified: true,
+      ),
     ];
 
     return Scaffold(
@@ -181,7 +284,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        // すべて表示ボタンの処理
+                        Navigator.pushNamed(context, AppRoutes.categoryList);
                       },
                       child: Text(
                         'すべて表示',
@@ -349,7 +452,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                         subtitle: Text(
-                          stars[index].category,
+                          stars[index].platforms.first,
                           style: TextStyle(
                             color: secondaryTextColor,
                           ),
@@ -384,6 +487,77 @@ class HomeScreen extends StatelessWidget {
                 },
                 childCount: stars.length,
               ),
+            ),
+
+            // 検索履歴に基づくおすすめセクション
+            HorizontalSection(
+              title: '検索履歴に基づくおすすめ',
+              seeMoreText: 'もっと見る',
+              onSeeMoreTap: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.category,
+                  arguments: {'title': '検索履歴に基づくおすすめ'},
+                );
+              },
+              children: searchBasedRecommendations.map((star) => StarCard(
+                star: star,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.starDetail,
+                    arguments: star,
+                  );
+                },
+              )).toList(),
+            ),
+            
+            // SNS連携に基づくおすすめセクション
+            HorizontalSection(
+              title: 'SNSでフォロー中',
+              seeMoreText: 'もっと見る',
+              trailing: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.link,
+                      color: Colors.blue,
+                      size: 14,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'X連携中',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              onSeeMoreTap: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.category,
+                  arguments: {'title': 'SNSでフォロー中'},
+                );
+              },
+              children: snsBasedRecommendations.map((star) => StarCard(
+                star: star,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.starDetail,
+                    arguments: star,
+                  );
+                },
+              )).toList(),
             ),
 
             // 今日のアクティビティのタイトル
@@ -530,32 +704,54 @@ class HomeScreen extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.article_outlined),
-            activeIcon: Icon(Icons.article),
-            label: 'Today',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.rocket_outlined),
-            activeIcon: Icon(Icons.rocket),
-            label: 'ゲーム',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.apps_outlined),
-            activeIcon: Icon(Icons.apps),
-            label: 'アプリ',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.sports_esports_outlined),
-            activeIcon: Icon(Icons.sports_esports),
-            label: 'Arcade',
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'ホーム',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search_outlined),
             activeIcon: Icon(Icons.search),
             label: '検索',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category_outlined),
+            activeIcon: Icon(Icons.category),
+            label: 'カテゴリ',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_add_outlined),
+            activeIcon: Icon(Icons.person_add),
+            label: 'フォロー中',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outlined),
+            activeIcon: Icon(Icons.person),
+            label: 'マイページ',
+          ),
         ],
         currentIndex: 0,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              // ホーム画面（現在の画面）
+              break;
+            case 1:
+              // 検索画面
+              break;
+            case 2:
+              // カテゴリ画面
+              Navigator.pushNamed(context, AppRoutes.categoryList);
+              break;
+            case 3:
+              // フォロー中画面
+              Navigator.pushNamed(context, AppRoutes.following);
+              break;
+            case 4:
+              // マイページ画面（現在はファンのマイページに遷移）
+              Navigator.pushNamed(context, AppRoutes.fanMypage);
+              break;
+          }
+        },
       ),
     );
   }

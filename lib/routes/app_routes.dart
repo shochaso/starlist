@@ -3,15 +3,19 @@ import '../models/star.dart';
 import '../screens/home_screen.dart';
 import '../screens/category_screen.dart';
 import '../screens/star_detail_screen.dart';
-import '../screens/favorites_screen.dart';
-import '../screens/mypage_screen.dart';
+import '../screens/following_screen.dart';
+import '../screens/fan_mypage_screen.dart';
+import '../screens/star_mypage_screen.dart';
+import '../screens/category_list_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
   static const String category = '/category';
+  static const String categoryList = '/category_list';
   static const String starDetail = '/star_detail';
-  static const String favorites = '/favorites';
-  static const String mypage = '/mypage';
+  static const String following = '/following';
+  static const String fanMypage = '/fan_mypage';
+  static const String starMypage = '/star_mypage';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -23,11 +27,22 @@ class AppRoutes {
         );
 
       case category:
-        final Map<String, dynamic> args = settings.arguments as Map<String, dynamic>;
+        Map<String, dynamic>? args;
+        if (settings.arguments is String) {
+          args = {'title': settings.arguments as String};
+        } else if (settings.arguments is Map<String, dynamic>) {
+          args = settings.arguments as Map<String, dynamic>;
+        }
+        
         return MaterialPageRoute(
           builder: (context) => CategoryScreen(
-            category: args['category'] as String,
+            category: args?['title'] ?? '',
           ),
+        );
+        
+      case categoryList:
+        return MaterialPageRoute(
+          builder: (context) => CategoryListScreen(),
         );
 
       case starDetail:
@@ -38,16 +53,19 @@ class AppRoutes {
           ),
         );
 
-      case favorites:
+      case following:
         return MaterialPageRoute(
-          builder: (context) => FavoritesScreen(),
+          builder: (context) => FollowingScreen(),
         );
 
-      case mypage:
+      case fanMypage:
         return MaterialPageRoute(
-          builder: (context) => MypageScreen(
-            onThemeToggle: settings.arguments as VoidCallback?,
-          ),
+          builder: (context) => FanMyPageScreen(),
+        );
+        
+      case starMypage:
+        return MaterialPageRoute(
+          builder: (context) => StarMyPageScreen(),
         );
 
       default:

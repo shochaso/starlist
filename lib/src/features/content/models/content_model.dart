@@ -1,4 +1,4 @@
-enum ContentType {
+enum ContentTypeModel {
   video,
   image,
   text,
@@ -9,7 +9,7 @@ class ContentModel {
   final String id;
   final String title;
   final String description;
-  final ContentType type;
+  final ContentTypeModel type;
   final String url;
   final String authorId;
   final String authorName;
@@ -43,9 +43,9 @@ class ContentModel {
       id: json["id"] as String,
       title: json["title"] as String,
       description: json["description"] as String,
-      type: ContentType.values.firstWhere(
-        (e) => e.toString() == "ContentType.${json["type"]}",
-        orElse: () => ContentType.text,
+      type: ContentTypeModel.values.firstWhere(
+        (e) => e.toString() == "ContentTypeModel.${json["type"]}",
+        orElse: () => ContentTypeModel.text,
       ),
       url: json["url"] as String,
       authorId: json["authorId"] as String,

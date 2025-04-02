@@ -3,30 +3,204 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/content_consumption_model.dart';
+import '../models/content_model.dart';
 
 class ContentRepository {
   final SupabaseClient _client;
-  final String _table = 'content_consumption';
+  final String _contentsTable = 'contents';
+  final String _consumptionsTable = 'content_consumptions';
   
   ContentRepository(this._client);
   
-  /// 特定のユーザーのコンテンツ消費データを取得
-  Future<List<ContentConsumption>> getUserContentConsumptions({
-    required String userId,
-    ContentCategory? category,
+  /// コンテンツ一覧取得
+  Future<List<ContentModel>> getContents({
+    String? authorId,
+    ContentTypeModel? type,
     int limit = 20,
     int offset = 0,
   }) async {
     try {
       var query = _client
-          .from(_table)
+          .from(_contentsTable)
+          .select('*, users:author_id(username, display_name, profile_image_url)')
+          .eq('is_published', true);
+      
+      if (authorId != null) {
+        query = query.eq('author_id', authorId) as PostgrestFilterBuilder;
+      }
+      
+      if (type != null) {
+        query = query.eq('type', type.toString().split('.').last) as PostgrestFilterBuilder;
+      }
+      
+      final data = await query
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
+      
+      return List<Map<String, dynamic>>.from(data)
+          .map((item) {
+            final userData = item['users'] as Map<String, dynamic>;
+            return ContentModel(
+              id: item['id'] as String,
+              title: item['title'] as String,
+              description: item['description'] as String? ?? '',
+              type: _contentTypeFromString(item['type'] as String),
+              url: item['url'] as String? ?? '',
+              authorId: item['author_id'] as String,
+              authorName: userData['display_name'] as String? ?? userData['username'] as String,
+              createdAt: DateTime.parse(item['created_at'] as String),
+              updatedAt: DateTime.parse(item['updated_at'] as String),
+              metadata: item['metadata'] as Map<String, dynamic>? ?? {},
+              isPublished: item['is_published'] as bool? ?? true,
+              likes: item['likes'] as int? ?? 0,
+              comments: item['comments'] as int? ?? 0,
+              shares: item['shares'] as int? ?? 0,
+            );
+          })
+          .toList();
+    } catch (e) {
+      log('コンテンツ一覧の取得に失敗しました: $e');
+      return [];
+    }
+  }
+  
+  /// 特定のコンテンツ取得
+  Future<ContentModel?> getContentById(String id) async {
+    try {
+      final data = await _client
+          .from(_contentsTable)
+          .select('*, users:author_id(username, display_name, profile_image_url)')
+          .eq('id', id)
+          .single();
+      
+      final userData = data['users'] as Map<String, dynamic>;
+      return ContentModel(
+        id: data['id'] as String,
+        title: data['title'] as String,
+        description: data['description'] as String? ?? '',
+        type: _contentTypeFromString(data['type'] as String),
+        url: data['url'] as String? ?? '',
+        authorId: data['author_id'] as String,
+        authorName: userData['display_name'] as String? ?? userData['username'] as String,
+        createdAt: DateTime.parse(data['created_at'] as String),
+        updatedAt: DateTime.parse(data['updated_at'] as String),
+        metadata: data['metadata'] as Map<String, dynamic>? ?? {},
+        isPublished: data['is_published'] as bool? ?? true,
+        likes: data['likes'] as int? ?? 0,
+        comments: data['comments'] as int? ?? 0,
+        shares: data['shares'] as int? ?? 0,
+      );
+    } catch (e) {
+      log('コンテンツの取得に失敗しました: $e');
+      return null;
+    }
+  }
+  
+  /// コンテンツ作成
+  Future<ContentModel?> createContent(ContentModel content) async {
+    try {
+      final newId = const Uuid().v4();
+      final now = DateTime.now();
+      
+      final newContent = {
+        'id': newId,
+        'title': content.title,
+        'description': content.description,
+        'type': content.type.toString().split('.').last,
+        'url': content.url,
+        'author_id': content.authorId,
+        'metadata': content.metadata,
+        'is_published': content.isPublished,
+        'created_at': now.toIso8601String(),
+        'updated_at': now.toIso8601String(),
+      };
+      
+      await _client
+          .from(_contentsTable)
+          .insert(newContent);
+      
+      final userData = await _client
+          .from('users')
+          .select('username, display_name')
+          .eq('id', content.authorId)
+          .single();
+      
+      return ContentModel(
+        id: newId,
+        title: content.title,
+        description: content.description,
+        type: content.type,
+        url: content.url,
+        authorId: content.authorId,
+        authorName: userData['display_name'] as String? ?? userData['username'] as String,
+        createdAt: now,
+        updatedAt: now,
+        metadata: content.metadata,
+        isPublished: content.isPublished,
+      );
+    } catch (e) {
+      log('コンテンツの作成に失敗しました: $e');
+      return null;
+    }
+  }
+  
+  /// コンテンツ更新
+  Future<bool> updateContent(ContentModel content) async {
+    try {
+      final now = DateTime.now();
+      
+      await _client
+          .from(_contentsTable)
+          .update({
+            'title': content.title,
+            'description': content.description,
+            'type': content.type.toString().split('.').last,
+            'url': content.url,
+            'metadata': content.metadata,
+            'is_published': content.isPublished,
+            'updated_at': now.toIso8601String(),
+          })
+          .eq('id', content.id);
+      
+      return true;
+    } catch (e) {
+      log('コンテンツの更新に失敗しました: $e');
+      return false;
+    }
+  }
+  
+  /// コンテンツ削除
+  Future<bool> deleteContent(String id) async {
+    try {
+      await _client
+          .from(_contentsTable)
+          .delete()
+          .eq('id', id);
+      
+      return true;
+    } catch (e) {
+      log('コンテンツの削除に失敗しました: $e');
+      return false;
+    }
+  }
+  
+  /// 特定のユーザーのコンテンツ消費データを取得
+  Future<List<ContentConsumptionModel>> getUserContentConsumptions({
+    required String userId,
+    ContentType? contentType,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      var query = _client
+          .from(_consumptionsTable)
           .select();
       
       // フィルタを適用
       query = query.eq('user_id', userId) as PostgrestFilterBuilder;
       
-      if (category != null) {
-        query = query.eq('category', category.name) as PostgrestFilterBuilder;
+      if (contentType != null) {
+        query = query.eq('content_type', contentType.toString().split('.').last) as PostgrestFilterBuilder;
       }
       
       // ソートと制限を適用
@@ -34,143 +208,25 @@ class ContentRepository {
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
       
-      // データがない場合はモックデータを返す（開発中の一時的な対応）
-      if (data == null || (data is List && data.isEmpty)) {
-        return _generateMockData(userId, category);
-      }
-      
       return List<Map<String, dynamic>>.from(data)
-          .map((item) => ContentConsumption.fromJson(item))
+          .map((item) => ContentConsumptionModel.fromJson(item))
           .toList();
     } catch (e) {
       log('コンテンツ消費データの取得に失敗しました: $e');
-      // エラー時はモックデータを返す（開発中の一時的な対応）
-      return _generateMockData(userId, category);
+      return [];
     }
-  }
-  
-  // モックデータ生成（テスト用）- 実際のデータがない場合のフォールバック
-  List<ContentConsumption> _generateMockData(String userId, ContentCategory? filterCategory) {
-    final categories = filterCategory != null ? [filterCategory] : ContentCategory.values;
-    final result = <ContentConsumption>[];
-    
-    for (final category in categories) {
-      switch (category) {
-        case ContentCategory.youtube:
-          result.addAll([
-            ContentConsumption(
-              id: '1',
-              userId: userId,
-              title: 'Flutter 3.0の新機能紹介',
-              description: 'Flutterの最新バージョンの機能を解説しています。',
-              category: ContentCategory.youtube,
-              contentData: {
-                'video_id': 'dQw4w9WgXcQ',
-                'thumbnail_url': 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
-              },
-              privacyLevel: PrivacyLevel.public,
-              createdAt: DateTime.now().subtract(Duration(days: 2)),
-              updatedAt: DateTime.now().subtract(Duration(days: 2)),
-              viewCount: 1250,
-              likeCount: 42,
-            ),
-            ContentConsumption(
-              id: '2',
-              userId: userId,
-              title: 'Dart言語入門講座',
-              description: 'プログラミング初心者向けのDart言語チュートリアル',
-              category: ContentCategory.youtube,
-              contentData: {
-                'video_id': '9bZkp7q19f0',
-                'thumbnail_url': 'https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg',
-              },
-              privacyLevel: PrivacyLevel.public,
-              createdAt: DateTime.now().subtract(Duration(days: 5)),
-              updatedAt: DateTime.now().subtract(Duration(days: 5)),
-              viewCount: 843,
-              likeCount: 35,
-            ),
-          ]);
-          break;
-        case ContentCategory.book:
-          result.addAll([
-            ContentConsumption(
-              id: '3',
-              userId: userId,
-              title: 'ハリーポッターと賢者の石',
-              description: 'J.K.ローリングのファンタジー小説',
-              category: ContentCategory.book,
-              contentData: {
-                'author': 'J.K.ローリング',
-                'isbn': '9784915512377',
-              },
-              privacyLevel: PrivacyLevel.public,
-              createdAt: DateTime.now().subtract(Duration(days: 10)),
-              updatedAt: DateTime.now().subtract(Duration(days: 10)),
-            ),
-          ]);
-          break;
-        case ContentCategory.purchase:
-          result.addAll([
-            ContentConsumption(
-              id: '4',
-              userId: userId,
-              title: 'MacBook Pro 14インチ',
-              description: 'Apple Silicon M2チップ搭載の最新モデル',
-              category: ContentCategory.purchase,
-              contentData: {
-                'store': 'Apple Store',
-                'product_url': 'https://www.apple.com/jp/macbook-pro/',
-              },
-              privacyLevel: PrivacyLevel.public,
-              createdAt: DateTime.now().subtract(Duration(days: 15)),
-              updatedAt: DateTime.now().subtract(Duration(days: 15)),
-              price: 248000,
-            ),
-          ]);
-          break;
-        case ContentCategory.food:
-          result.addAll([
-            ContentConsumption(
-              id: '5',
-              userId: userId,
-              title: '渋谷の人気ラーメン店',
-              description: '濃厚魚介豚骨つけ麺を堪能',
-              category: ContentCategory.food,
-              contentData: {
-                'restaurant': '麺屋 海神',
-                'menu': '特製つけ麺',
-              },
-              privacyLevel: PrivacyLevel.public,
-              createdAt: DateTime.now().subtract(Duration(days: 3)),
-              updatedAt: DateTime.now().subtract(Duration(days: 3)),
-              location: GeoLocation(
-                latitude: 35.658034,
-                longitude: 139.701636,
-                placeName: '麺屋 海神 渋谷店',
-                address: '東京都渋谷区道玄坂2-10-12',
-              ),
-            ),
-          ]);
-          break;
-        default:
-          break;
-      }
-    }
-    
-    return result;
   }
   
   /// 特定のコンテンツ消費データを取得
-  Future<ContentConsumption?> getContentConsumptionById(String id) async {
+  Future<ContentConsumptionModel?> getContentConsumptionById(String id) async {
     try {
       final data = await _client
-          .from(_table)
+          .from(_consumptionsTable)
           .select()
           .eq('id', id)
           .single();
       
-      return ContentConsumption.fromJson(data);
+      return ContentConsumptionModel.fromJson(data);
     } catch (e) {
       log('コンテンツ消費データの取得に失敗しました: $e');
       return null;
@@ -178,39 +234,56 @@ class ContentRepository {
   }
   
   /// 新しいコンテンツ消費データを作成
-  Future<ContentConsumption?> createContentConsumption(ContentConsumption content) async {
+  Future<ContentConsumptionModel?> createContentConsumption(ContentConsumptionModel contentConsumption) async {
     try {
       final newId = const Uuid().v4();
       final now = DateTime.now();
       
-      final newContent = content.copyWith(
+      final newConsumption = contentConsumption.toJson();
+      newConsumption['id'] = newId;
+      newConsumption['created_at'] = now.toIso8601String();
+      newConsumption['updated_at'] = now.toIso8601String();
+      
+      await _client
+          .from(_consumptionsTable)
+          .insert(newConsumption);
+      
+      return ContentConsumptionModel(
         id: newId,
+        userId: contentConsumption.userId,
+        contentType: contentConsumption.contentType,
+        contentId: contentConsumption.contentId,
+        title: contentConsumption.title,
+        description: contentConsumption.description,
+        platform: contentConsumption.platform,
+        url: contentConsumption.url,
+        consumptionDate: contentConsumption.consumptionDate,
+        duration: contentConsumption.duration,
+        rating: contentConsumption.rating,
+        comment: contentConsumption.comment,
+        metadata: contentConsumption.metadata,
+        isPublic: contentConsumption.isPublic,
         createdAt: now,
         updatedAt: now,
       );
-      
-      await _client
-          .from(_table)
-          .insert(newContent.toJson());
-      
-      return newContent;
     } catch (e) {
       log('コンテンツ消費データの作成に失敗しました: $e');
       return null;
     }
   }
   
-  /// コンテンツ消費データを更新
-  Future<bool> updateContentConsumption(ContentConsumption content) async {
+  /// コンテンツ消費データの更新
+  Future<bool> updateContentConsumption(ContentConsumptionModel contentConsumption) async {
     try {
-      final updatedContent = content.copyWith(
-        updatedAt: DateTime.now(),
-      );
+      final now = DateTime.now();
+      
+      final updatedConsumption = contentConsumption.toJson();
+      updatedConsumption['updated_at'] = now.toIso8601String();
       
       await _client
-          .from(_table)
-          .update(updatedContent.toJson())
-          .eq('id', content.id);
+          .from(_consumptionsTable)
+          .update(updatedConsumption)
+          .eq('id', contentConsumption.id);
       
       return true;
     } catch (e) {
@@ -219,11 +292,11 @@ class ContentRepository {
     }
   }
   
-  /// コンテンツ消費データを削除
+  /// コンテンツ消費データの削除
   Future<bool> deleteContentConsumption(String id) async {
     try {
       await _client
-          .from(_table)
+          .from(_consumptionsTable)
           .delete()
           .eq('id', id);
       
@@ -234,212 +307,13 @@ class ContentRepository {
     }
   }
   
-  /// 閲覧数をインクリメント
-  Future<bool> incrementViewCount(String id) async {
+  static ContentTypeModel _contentTypeFromString(String type) {
     try {
-      await _client.rpc('increment_view_count', params: {'content_id': id});
-      return true;
-    } catch (e) {
-      log('閲覧数の更新に失敗しました: $e');
-      return false;
+      return ContentTypeModel.values.firstWhere(
+        (e) => e.toString().split('.').last == type,
+      );
+    } catch (_) {
+      return ContentTypeModel.text;
     }
-  }
-  
-  /// いいね数をインクリメント
-  Future<bool> incrementLikeCount(String id) async {
-    try {
-      await _client.rpc('increment_like_count', params: {'content_id': id});
-      return true;
-    } catch (e) {
-      log('いいね数の更新に失敗しました: $e');
-      return false;
-    }
-  }
-  
-  /// コメント数をインクリメント
-  Future<bool> incrementCommentCount(String id) async {
-    try {
-      await _client.rpc('increment_comment_count', params: {'content_id': id});
-      return true;
-    } catch (e) {
-      log('コメント数の更新に失敗しました: $e');
-      return false;
-    }
-  }
-  
-  /// プライバシー設定に応じた公開コンテンツを取得
-  Future<List<ContentConsumption>> getPublicContentConsumptions({
-    ContentCategory? category,
-    int limit = 20,
-    int offset = 0,
-    String? searchQuery,
-  }) async {
-    try {
-      var query = _client
-          .from(_table)
-          .select();
-          
-      // フィルタを適用
-      query = query.eq('privacy_level', PrivacyLevel.public.name) as PostgrestFilterBuilder;
-      
-      if (category != null) {
-        query = query.eq('category', category.name) as PostgrestFilterBuilder;
-      }
-      
-      if (searchQuery != null && searchQuery.isNotEmpty) {
-        query = query.ilike('title', '%$searchQuery%') as PostgrestFilterBuilder;
-      }
-      
-      // ソートと制限を適用
-      final data = await query
-          .order('created_at', ascending: false)
-          .range(offset, offset + limit - 1);
-      
-      // データがない場合はモックデータを返す（開発中の一時的な対応）
-      if (data == null || (data is List && data.isEmpty)) {
-        final allData = _generateMockData('public', category);
-        
-        if (searchQuery != null && searchQuery.isNotEmpty) {
-          return allData.where((content) => 
-            content.title.toLowerCase().contains(searchQuery.toLowerCase()) || 
-            (content.description?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false)
-          ).toList();
-        }
-        
-        return allData;
-      }
-      
-      return List<Map<String, dynamic>>.from(data)
-          .map((item) => ContentConsumption.fromJson(item))
-          .toList();
-    } catch (e) {
-      log('公開コンテンツの取得に失敗しました: $e');
-      // エラー時はモックデータを返す（開発中の一時的な対応）
-      final allData = _generateMockData('public', category);
-      
-      if (searchQuery != null && searchQuery.isNotEmpty) {
-        return allData.where((content) => 
-          content.title.toLowerCase().contains(searchQuery.toLowerCase()) || 
-          (content.description?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false)
-        ).toList();
-      }
-      
-      return allData;
-    }
-  }
-  
-  /// 人気コンテンツを取得（閲覧数に基づく）
-  Future<List<ContentConsumption>> getPopularContentConsumptions({
-    ContentCategory? category,
-    int limit = 20,
-    int offset = 0,
-  }) async {
-    try {
-      var query = _client
-          .from(_table)
-          .select();
-          
-      // フィルタを適用
-      query = query.eq('privacy_level', PrivacyLevel.public.name) as PostgrestFilterBuilder;
-      
-      if (category != null) {
-        query = query.eq('category', category.name) as PostgrestFilterBuilder;
-      }
-      
-      // ソートと制限を適用
-      final data = await query
-          .order('view_count', ascending: false)
-          .range(offset, offset + limit - 1);
-      
-      // データがない場合はモックデータを返す（開発中の一時的な対応）
-      if (data == null || (data is List && data.isEmpty)) {
-        final allData = _generateMockData('public', category);
-        allData.sort((a, b) => b.viewCount.compareTo(a.viewCount));
-        return allData.take(limit).toList();
-      }
-      
-      return List<Map<String, dynamic>>.from(data)
-          .map((item) => ContentConsumption.fromJson(item))
-          .toList();
-    } catch (e) {
-      log('人気コンテンツの取得に失敗しました: $e');
-      // エラー時はモックデータを返す（開発中の一時的な対応）
-      final allData = _generateMockData('public', category);
-      allData.sort((a, b) => b.viewCount.compareTo(a.viewCount));
-      return allData.take(limit).toList();
-    }
-  }
-  
-  /// カテゴリごとのコンテンツ消費集計を取得
-  Future<Map<ContentCategory, int>> getUserContentCategoryCounts(String userId) async {
-    try {
-      final response = await _client
-          .from(_table)
-          .select('category, count')
-          .eq('user_id', userId)
-          .execute();
-      
-      final data = response.data as List;
-      final result = <ContentCategory, int>{};
-      
-      if (data.isEmpty) {
-        // データがない場合はモックデータを返す
-        return {
-          ContentCategory.youtube: 2,
-          ContentCategory.book: 1,
-          ContentCategory.purchase: 1,
-          ContentCategory.food: 1,
-        };
-      }
-      
-      for (final item in data) {
-        final category = ContentCategory.values.firstWhere(
-          (cat) => cat.name == item['category'],
-          orElse: () => ContentCategory.other,
-        );
-        
-        result[category] = (item['count'] as int?) ?? 0;
-      }
-      
-      return result;
-    } catch (e) {
-      log('カテゴリ集計の取得に失敗しました: $e');
-      // エラー時はモックデータを返す
-      return {
-        ContentCategory.youtube: 2,
-        ContentCategory.book: 1,
-        ContentCategory.purchase: 1,
-        ContentCategory.food: 1,
-      };
-    }
-  }
-  
-  /// YouTubeコンテンツを保存
-  Future<ContentConsumption?> saveYouTubeContent({
-    required String userId,
-    required String videoId,
-    required String title,
-    required String thumbnailUrl,
-    String? description,
-    PrivacyLevel privacyLevel = PrivacyLevel.public,
-  }) async {
-    final contentData = {
-      'video_id': videoId,
-      'thumbnail_url': thumbnailUrl,
-    };
-    
-    final content = ContentConsumption(
-      id: '', // createContentConsumptionで生成される
-      userId: userId,
-      title: title,
-      description: description,
-      category: ContentCategory.youtube,
-      contentData: contentData,
-      privacyLevel: privacyLevel,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-    
-    return await createContentConsumption(content);
   }
 } 

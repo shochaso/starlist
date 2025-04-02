@@ -57,406 +57,453 @@ class StarDetailScreen extends StatelessWidget {
       backgroundColor: backgroundColor,
       body: CustomScrollView(
         slivers: [
-          // スライバーアップバー
+          // アプリバー
           SliverAppBar(
-            backgroundColor: isDarkMode ? Colors.black : Colors.transparent,
             expandedHeight: 240,
             pinned: true,
+            backgroundColor: backgroundColor,
+            iconTheme: IconThemeData(color: textColor),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                star.name,
-                style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.bold,
-                  shadows: isDarkMode ? [] : [
-                    Shadow(
-                      offset: Offset(0, 1),
-                      blurRadius: 3.0,
-                      color: Color.fromARGB(100, 0, 0, 0),
+              background: Container(
+                decoration: BoxDecoration(
+                  color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
+                ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
+                      star.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Icon(
+                            Icons.star,
+                            size: 100,
+                            color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade400,
+                          ),
+                        );
+                      },
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7),
+                          ],
+                          stops: [0.6, 1.0],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 16,
+                      left: 16,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                star.name,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              if (star.isVerified)
+                                Icon(
+                                  Icons.verified,
+                                  color: Colors.blue,
+                                  size: 24,
+                                ),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'フォロワー: ${_formatNumber(star.followers)}',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // スター画像
-                  Image.network(
-                    star.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: isDarkMode ? Colors.grey[800] : Colors.grey[300],
-                        child: Center(
-                          child: Text(
-                            star.name,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  // オーバーレイグラデーション
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: isDarkMode
-                            ? [
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.7),
-                              ]
-                            : [
-                                Colors.transparent,
-                                Colors.white.withOpacity(0.5),
-                              ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
             actions: [
               IconButton(
-                icon: Icon(
-                  Icons.share,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                ),
+                icon: Icon(Icons.share, color: textColor),
                 onPressed: () {
                   // シェア機能
                 },
               ),
+              IconButton(
+                icon: Icon(Icons.favorite_border, color: textColor),
+                onPressed: () {
+                  // お気に入り機能
+                },
+              ),
             ],
           ),
-          
-          // スター概要
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // アイコン
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      color: isDarkMode ? Colors.grey[800] : Colors.grey[300],
-                      child: Image.network(
-                        star.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Center(
-                            child: Text(
-                              star.name.substring(0, 1),
-                              style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  // スター情報
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          star.name,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          star.category,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: secondaryTextColor,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        Row(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                // 入手ボタン
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isDarkMode ? Colors.blue : Colors.black,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: EdgeInsets.symmetric(horizontal: 24),
-                              ),
-                              child: Text('入手'),
-                            ),
-                            SizedBox(width: 12),
-                            IconButton(
-                              onPressed: () {
-                                // お気に入り機能
-                              },
-                              icon: Icon(
-                                Icons.favorite_border,
-                                color: textColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          // スクリーンショットスクロール
-          SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 16, top: 16, bottom: 8),
-                  child: Text(
-                    '注目のアクティビティ',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 200,
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: activities.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        width: 320,
-                        margin: EdgeInsets.only(right: 12),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            activities[index].imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
-                                child: Center(
-                                  child: Icon(
-                                    _getActivityIcon(activities[index].type),
-                                    size: 50,
-                                    color: isDarkMode ? Colors.white : Colors.grey[700],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
 
-          // 統計情報
+          // スター情報
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // プラットフォーム
                   Text(
-                    '情報',
+                    'プラットフォーム',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: textColor,
                     ),
                   ),
-                  SizedBox(height: 12),
-                  _infoRow(Icons.people, 'フォロワー', _formatFollowers(star.followers), textColor, secondaryTextColor),
-                  Divider(color: dividerColor),
-                  _infoRow(Icons.star, 'ランク', star.rank, textColor, secondaryTextColor),
-                  Divider(color: dividerColor),
-                  _infoRow(Icons.category, 'カテゴリ', star.category, textColor, secondaryTextColor),
-                  Divider(color: dividerColor),
-                  _infoRow(Icons.calendar_today, '登録日', '2023年4月1日', textColor, secondaryTextColor),
+                  SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: star.platforms.map((platform) {
+                      return Chip(
+                        backgroundColor: _getPlatformColor(platform),
+                        label: Text(
+                          platform,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  
+                  SizedBox(height: 16),
+                  
+                  // ジャンル
+                  Text(
+                    'ジャンル',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: star.genres.map((genre) {
+                      final genreRating = star.genreRatings[genre];
+                      final level = genreRating?.level ?? 0;
+                      
+                      return Chip(
+                        backgroundColor: _getGenreColor(genre),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              genre,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (level > 0) ...[
+                              SizedBox(width: 4),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'Lv.$level',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  
+                  SizedBox(height: 24),
+                  
+                  // 認証状況
+                  _buildVerificationSection(
+                    context: context,
+                    star: star,
+                    backgroundColor: backgroundColor,
+                    textColor: textColor,
+                    cardColor: cardColor,
+                    secondaryTextColor: secondaryTextColor,
+                  ),
+                  
+                  SizedBox(height: 24),
+                  
+                  // SNSアカウント
+                  if (star.socialAccounts.isNotEmpty) ...[
+                    Text(
+                      '連携SNSアカウント',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    ...star.socialAccounts.map((account) => 
+                      _buildSocialAccountItem(
+                        context: context,
+                        account: account,
+                        backgroundColor: backgroundColor,
+                        textColor: textColor,
+                        cardColor: cardColor,
+                      ),
+                    ).toList(),
+                  ],
+                  
+                  SizedBox(height: 16),
+                  
+                  // フォローボタン
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // フォロー処理
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accentColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'フォローする',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          
-          // アクティビティ一覧のタイトル
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                'すべてのアクティビティ',
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildVerificationSection({
+    required BuildContext context,
+    required Star star,
+    required Color backgroundColor,
+    required Color textColor,
+    required Color cardColor,
+    required Color secondaryTextColor,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                star.isVerified ? Icons.verified : Icons.info_outline,
+                color: star.isVerified ? Colors.blue : Colors.amber,
+                size: 24,
+              ),
+              SizedBox(width: 8),
+              Text(
+                '認証状況',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: textColor,
                 ),
               ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Text(
+            star.isVerified
+                ? 'このスターアカウントは公式に認証されています。SNSアカウントとの連携が確認され、本人であることが確認されています。'
+                : 'このスターアカウントはまだ認証されていません。認証されると、プロフィール名の横に認証済みバッジが表示されます。',
+            style: TextStyle(
+              color: secondaryTextColor,
+              fontSize: 14,
             ),
           ),
-          
-          // アクティビティリスト
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: isDarkMode ? [] : [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 2,
-                          offset: Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.all(12),
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          color: isDarkMode ? Colors.grey[800] : Colors.grey[300],
-                          child: Image.network(
-                            activities[index].imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                _getActivityIcon(activities[index].type),
-                                color: isDarkMode ? Colors.white : Colors.grey[700],
-                                size: 30,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        activities[index].title,
-                        style: TextStyle(
-                          color: textColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        activities[index].content,
-                        style: TextStyle(
-                          color: secondaryTextColor,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: activities[index].price != null
-                          ? Text(
-                              '¥${activities[index].price!.toInt()}',
-                              style: TextStyle(
-                                color: textColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-                );
-              },
-              childCount: activities.length,
+          if (!star.isVerified) ...[
+            SizedBox(height: 12),
+            Text(
+              '認証を受けるには、公式SNSアカウントを連携してください。',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-          
-          // 余白
-          SliverToBoxAdapter(
-            child: SizedBox(height: 40),
-          ),
+          ],
         ],
       ),
     );
   }
-
-  Widget _infoRow(IconData icon, String label, String value, Color textColor, Color secondaryColor) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+  
+  Widget _buildSocialAccountItem({
+    required BuildContext context,
+    required SocialAccount account,
+    required Color backgroundColor,
+    required Color textColor,
+    required Color cardColor,
+  }) {
+    IconData iconData;
+    Color iconColor;
+    
+    switch (account.platform) {
+      case 'X (Twitter)':
+        iconData = Icons.alternate_email;
+        iconColor = Colors.blue;
+        break;
+      case 'Instagram':
+        iconData = Icons.photo_camera;
+        iconColor = Colors.pink;
+        break;
+      case 'YouTube':
+        iconData = Icons.play_arrow;
+        iconColor = Colors.red;
+        break;
+      case 'TikTok':
+        iconData = Icons.music_note;
+        iconColor = Colors.black;
+        break;
+      default:
+        iconData = Icons.link;
+        iconColor = Colors.grey;
+    }
+    
+    return Container(
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: secondaryColor,
-            size: 20,
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(iconData, color: iconColor),
           ),
           SizedBox(width: 12),
           Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: secondaryColor,
-                fontSize: 16,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  account.platform,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  account.username,
+                  style: TextStyle(
+                    color: textColor.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 16,
-            ),
-          ),
+          if (account.isVerified)
+            Icon(Icons.verified, color: Colors.blue)
         ],
       ),
     );
   }
-
-  IconData _getActivityIcon(String type) {
-    switch (type) {
-      case 'youtube':
-        return Icons.play_circle_outline;
-      case 'purchase':
-        return Icons.shopping_bag_outlined;
-      case 'music':
-        return Icons.music_note_outlined;
+  
+  String _formatNumber(int number) {
+    if (number >= 1000000) {
+      return '${(number / 1000000).toStringAsFixed(1)}M';
+    } else if (number >= 1000) {
+      return '${(number / 1000).toStringAsFixed(1)}K';
+    }
+    return number.toString();
+  }
+  
+  Color _getPlatformColor(String platform) {
+    switch (platform) {
+      case 'YouTuber':
+        return Colors.red;
+      case 'ミュージシャン':
+        return Colors.blue;
+      case 'アイドル':
+        return Colors.pink;
+      case '実況者':
+        return Colors.purple;
+      case 'ストリーマー':
+        return Colors.green;
+      case 'お笑い芸人':
+        return Colors.orange;
+      case 'モデル':
+        return Colors.amber;
+      case 'クリエイター':
+        return Colors.teal;
       default:
-        return Icons.star_outline;
+        return Colors.grey;
     }
   }
   
-  // フォロワー数のフォーマット
-  String _formatFollowers(int followers) {
-    if (followers >= 10000) {
-      double man = followers / 10000;
-      return '${man.toStringAsFixed(man.truncateToDouble() == man ? 0 : 1)}万';
-    } else if (followers >= 1000) {
-      double kilo = followers / 1000;
-      return '${kilo.toStringAsFixed(kilo.truncateToDouble() == kilo ? 0 : 1)}千';
-    } else {
-      return '$followers';
+  Color _getGenreColor(String genre) {
+    switch (genre) {
+      case '音楽':
+        return Colors.blue.shade700;
+      case 'J-POP':
+        return Colors.blue.shade400;
+      case 'ゲーム':
+        return Colors.indigo;
+      case 'スポーツ':
+        return Colors.green;
+      case 'アイドル':
+        return Colors.pink;
+      case '料理':
+        return Colors.amber;
+      case 'エンタメ':
+        return Colors.purple;
+      default:
+        return Colors.grey.shade700;
     }
   }
 } 

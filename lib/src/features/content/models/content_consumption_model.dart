@@ -211,4 +211,103 @@ class ContentConsumption {
       commentCount: commentCount ?? this.commentCount,
     );
   }
+}
+
+enum ContentType {
+  youtube,
+  spotify,
+  netflix,
+  book,
+  product,
+  other,
+}
+
+class ContentConsumptionModel {
+  final String id;
+  final String userId;
+  final ContentType contentType;
+  final String? contentId;
+  final String title;
+  final String? description;
+  final String? platform;
+  final String? url;
+  final DateTime consumptionDate;
+  final int? duration;
+  final int? rating;
+  final String? comment;
+  final Map<String, dynamic> metadata;
+  final bool isPublic;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  ContentConsumptionModel({
+    required this.id,
+    required this.userId,
+    required this.contentType,
+    this.contentId,
+    required this.title,
+    this.description,
+    this.platform,
+    this.url,
+    required this.consumptionDate,
+    this.duration,
+    this.rating,
+    this.comment,
+    this.metadata = const {},
+    this.isPublic = true,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory ContentConsumptionModel.fromJson(Map<String, dynamic> json) {
+    return ContentConsumptionModel(
+      id: json["id"] as String,
+      userId: json["user_id"] as String,
+      contentType: _contentTypeFromString(json["content_type"] as String),
+      contentId: json["content_id"] as String?,
+      title: json["title"] as String,
+      description: json["description"] as String?,
+      platform: json["platform"] as String?,
+      url: json["url"] as String?,
+      consumptionDate: DateTime.parse(json["consumption_date"] as String),
+      duration: json["duration"] as int?,
+      rating: json["rating"] as int?,
+      comment: json["comment"] as String?,
+      metadata: (json["metadata"] as Map<String, dynamic>?) ?? {},
+      isPublic: json["is_public"] as bool? ?? true,
+      createdAt: DateTime.parse(json["created_at"] as String),
+      updatedAt: DateTime.parse(json["updated_at"] as String),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "user_id": userId,
+      "content_type": contentType.toString().split(".").last,
+      "content_id": contentId,
+      "title": title,
+      "description": description,
+      "platform": platform,
+      "url": url,
+      "consumption_date": consumptionDate.toIso8601String(),
+      "duration": duration,
+      "rating": rating,
+      "comment": comment,
+      "metadata": metadata,
+      "is_public": isPublic,
+      "created_at": createdAt.toIso8601String(),
+      "updated_at": updatedAt.toIso8601String(),
+    };
+  }
+
+  static ContentType _contentTypeFromString(String type) {
+    try {
+      return ContentType.values.firstWhere(
+        (e) => e.toString().split('.').last == type,
+      );
+    } catch (_) {
+      return ContentType.other;
+    }
+  }
 } 

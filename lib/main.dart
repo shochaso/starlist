@@ -5,9 +5,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 
-// Web用のimport
-import 'dart:html' as html;
-
 import 'src/app.dart';  // StarlistAppをインポート
 import 'src/features/youtube/youtube_provider.dart';
 import 'src/features/data_integration/repositories/youtube_repository.dart';

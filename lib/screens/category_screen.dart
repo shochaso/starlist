@@ -21,28 +21,33 @@ class CategoryScreen extends StatelessWidget {
     final secondaryTextColor = isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700;
     final searchBarColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
     
-    // モック用データ（カテゴリーに基づいたスター）
+    // モック用データ（新しいStarモデル）
     final List<Star> categoryStars = [
       Star(
         id: '1',
         name: 'YOASOBI',
-        category: 'ミュージシャン',
+        platforms: ['ミュージシャン'],
+        genres: ['音楽', 'J-POP'],
         rank: 'スーパー',
         followers: 1500000,
         imageUrl: 'https://example.com/yoasobi.jpg',
+        isVerified: true,
       ),
       Star(
         id: '2',
         name: 'King & Prince',
-        category: 'アイドル',
+        platforms: ['アイドル', 'ミュージシャン'],
+        genres: ['音楽', 'アイドル'],
         rank: 'プラチナ',
         followers: 850000,
         imageUrl: 'https://example.com/kingandprince.jpg',
+        isVerified: true,
       ),
       Star(
         id: '3',
         name: 'バスケットボールスタイル',
-        category: 'YouTuber',
+        platforms: ['YouTuber', '実況者'],
+        genres: ['ゲーム', 'スポーツ'],
         rank: 'レギュラー',
         followers: 350000,
         imageUrl: 'https://example.com/basketballstyle.jpg',
@@ -50,25 +55,45 @@ class CategoryScreen extends StatelessWidget {
       Star(
         id: '4',
         name: 'BUMP OF CHICKEN',
-        category: 'ミュージシャン',
+        platforms: ['ミュージシャン'],
+        genres: ['音楽', 'ロック'],
         rank: 'スーパー',
         followers: 1200000,
         imageUrl: 'https://example.com/bump.jpg',
+        isVerified: true,
       ),
       Star(
         id: '5',
         name: 'Snow Man',
-        category: 'アイドル',
+        platforms: ['アイドル', 'ミュージシャン'],
+        genres: ['音楽', 'アイドル'],
         rank: 'プラチナ',
         followers: 780000,
         imageUrl: 'https://example.com/snowman.jpg',
+        isVerified: true,
       ),
     ];
 
-    // 選択されたカテゴリーに基づいてフィルタリング
-    final filteredStars = category == 'おすすめ' || category == 'ランキング'
-        ? categoryStars
-        : categoryStars.where((star) => star.category == category).toList();
+    // 選択されたカテゴリーに基づいてフィルタリング（プラットフォームまたはジャンル）
+    List<Star> filteredStars;
+    bool isGenre = false;
+    
+    if (category == 'おすすめ' || category == 'ランキング') {
+      filteredStars = categoryStars;
+    } else {
+      // プラットフォームでフィルターを試みる
+      filteredStars = categoryStars.where((star) => 
+        star.platforms.contains(category)
+      ).toList();
+      
+      // 結果がない場合、ジャンルでフィルター
+      if (filteredStars.isEmpty) {
+        filteredStars = categoryStars.where((star) => 
+          star.genres.contains(category)
+        ).toList();
+        isGenre = true;
+      }
+    }
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -123,7 +148,9 @@ class CategoryScreen extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
-              '$categoryの人気スター',
+              isGenre 
+                  ? '$categoryジャンルの人気スター'
+                  : '$categoryの人気スター',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -178,17 +205,30 @@ class CategoryScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    title: Text(
-                      filteredStars[index].name,
-                      style: TextStyle(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    title: Row(
+                      children: [
+                        Text(
+                          filteredStars[index].name,
+                          style: TextStyle(
+                            color: textColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (filteredStars[index].isVerified)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Icon(
+                              Icons.verified,
+                              color: Colors.blue,
+                              size: 16,
+                            ),
+                          ),
+                      ],
                     ),
                     subtitle: Row(
                       children: [
                         Text(
-                          filteredStars[index].category,
+                          filteredStars[index].platforms.first,
                           style: TextStyle(
                             color: secondaryTextColor,
                           ),

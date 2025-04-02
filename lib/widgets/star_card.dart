@@ -116,7 +116,7 @@ class StarCard extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    star.category,
+                    star.platforms.isNotEmpty ? star.platforms.first : '',
                     style: TextStyle(
                       fontSize: 14,
                       color: secondaryTextColor,
