@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 // Web用のimport
 import 'dart:html' as html;
 
+import 'src/app.dart';  // StarlistAppをインポート
 import 'src/features/youtube/youtube_provider.dart';
 import 'src/features/data_integration/repositories/youtube_repository.dart';
 import 'src/features/data_integration/services/youtube_api_service.dart';
@@ -18,16 +19,6 @@ import 'src/features/auth/providers/user_provider.dart';
 import 'src/features/auth/models/user_model.dart';
 import 'src/features/favorites/widgets/favorite_list.dart';
 import 'src/features/favorites/providers/favorite_provider.dart';
-
-// サービスのプロバイダー
-final supabaseClientProvider = Provider<SupabaseClient>((ref) {
-  try {
-    return Supabase.instance.client;
-  } catch (e) {
-    debugPrint('Supabaseクライアント取得エラー: $e');
-    throw Exception('Supabaseクライアントが初期化されていません');
-  }
-});
 
 // Supabase URL と Anon Key の環境変数
 final supabaseUrlProvider = Provider<String>((ref) {
@@ -43,6 +34,16 @@ final youtubeApiKeyProvider = Provider<String>((ref) {
   return dotenv.env['YOUTUBE_API_KEY'] ?? '';
 });
 
+// サービスのプロバイダー
+final supabaseClientProvider = Provider<SupabaseClient>((ref) {
+  try {
+    return Supabase.instance.client;
+  } catch (e) {
+    debugPrint('Supabaseクライアント取得エラー: $e');
+    throw Exception('Supabaseクライアントが初期化されていません');
+  }
+});
+
 // YouTubeApiServiceとリポジトリのプロバイダー
 final youtubeApiServiceProvider = Provider<YouTubeApiService>((ref) {
   final apiKey = ref.watch(youtubeApiKeyProvider);
@@ -55,71 +56,24 @@ final youtubeRepositoryProvider = Provider<YouTubeRepository>((ref) {
 });
 
 void main() async {
-  // Flutterバインディングの初期化は必須
   WidgetsFlutterBinding.ensureInitialized();
   
-  try {
-    // .env ファイルを読み込み
-    await dotenv.load();
-    debugPrint('.env ファイルの読み込み完了');
-    
-    // 環境変数を取得
-    final supabaseUrl = dotenv.env['SUPABASE_URL'] ?? '';
-    final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
-    
-    // Hiveデータベースの初期化
-    await Hive.initFlutter();
-    
-    // Supabaseの初期化（エラーが発生しても続行）
-    try {
-      await Supabase.initialize(
-        url: supabaseUrl,
-        anonKey: supabaseAnonKey,
-        debug: false,
-      );
-      debugPrint('Supabase初期化完了');
-    } catch (e) {
-      debugPrint('Supabase初期化エラー: $e');
-    }
-    
-    // アプリを実行
-    runApp(
-      const ProviderScope(
-        child: MyApp(),
-      ),
-    );
-  } catch (e) {
-    debugPrint('アプリ初期化エラー: $e');
-    // エラーの場合でも最小限のアプリを表示
-    runApp(
-      MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(title: const Text('エラー')),
-          body: Center(
-            child: Text('初期化エラー: $e'),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// アプリのメインクラス
-class MyApp extends ConsumerWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
-      title: 'Starlist',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      // 簡易的にホーム画面を直接表示させる
-      home: const HomeScreen(),
-    );
-  }
+  // .envファイルの読み込み
+  await dotenv.load();
+  
+  // Supabaseクライアントの初期化
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+  );
+  
+  final supabaseClient = Supabase.instance.client;
+  
+  runApp(
+    ProviderScope(
+      child: StarlistApp(supabaseClient: supabaseClient)
+    )
+  );
 }
 
 // シンプルなテスト用ホーム画面
