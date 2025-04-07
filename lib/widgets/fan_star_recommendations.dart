@@ -19,7 +19,7 @@ class FanStarRecommendations extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 200,
+            height: 250,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: 5,
@@ -41,7 +41,7 @@ class FanStarRecommendations extends StatelessWidget {
                           ),
                           child: Image.network(
                             'https://picsum.photos/200/200?random=$index',
-                            height: 120,
+                            height: 100,
                             width: double.infinity,
                             fit: BoxFit.cover,
                           ),
@@ -67,17 +67,20 @@ class FanStarRecommendations extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () {
-                                  // TODO: フォロー機能の実装
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: const Size(double.infinity, 36),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                              SizedBox(
+                                height: 36,
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // TODO: フォロー機能の実装
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
+                                  child: const Text('フォローする'),
                                 ),
-                                child: const Text('フォローする'),
                               ),
                             ],
                           ),

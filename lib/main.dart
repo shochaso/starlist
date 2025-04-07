@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
+import 'package:provider/provider.dart';
 
 import 'src/app.dart';  // StarlistAppをインポート
 import 'src/features/youtube/youtube_provider.dart';
@@ -16,6 +17,11 @@ import 'src/features/auth/providers/user_provider.dart';
 import 'src/features/auth/models/user_model.dart';
 import 'src/features/favorites/widgets/favorite_list.dart';
 import 'src/features/favorites/providers/favorite_provider.dart';
+import 'screens/star_home_screen.dart';
+import 'screens/fan_home_screen.dart';
+import 'models/user.dart';
+import 'providers/user_provider.dart';
+import 'screens/login_screen.dart';
 
 // Supabase URL と Anon Key の環境変数
 final supabaseUrlProvider = Provider<String>((ref) {
@@ -52,25 +58,48 @@ final youtubeRepositoryProvider = Provider<YouTubeRepository>((ref) {
   return YouTubeRepository(apiService: apiService);
 });
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // .envファイルの読み込み
-  await dotenv.load();
-  
-  // Supabaseクライアントの初期化
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-  );
-  
-  final supabaseClient = Supabase.instance.client;
-  
-  runApp(
-    ProviderScope(
-      child: StarlistApp(supabaseClient: supabaseClient)
-    )
-  );
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => UserProvider(),
+      child: MaterialApp(
+        title: 'Starlist',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+          useMaterial3: true,
+        ),
+        home: const HomePage(),
+      ),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    
+    // ユーザーがログインしていない場合
+    if (userProvider.currentUser == null) {
+      return const LoginScreen();
+    }
+    
+    // ユーザータイプに基づいて画面を切り替え
+    if (userProvider.isStar) {
+      return const StarHomeScreen();
+    } else {
+      return const FanHomeScreen();
+    }
+  }
 }
 
 // シンプルなテスト用ホーム画面
