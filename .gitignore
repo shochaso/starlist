@@ -61,3 +61,10 @@ coverage/
 .env.development
 .env.test
 .env.production
+
+# Mac関連
+.DS_Store
+~/Library/
+
+# Claud関連
+claude_desktop_config.json
