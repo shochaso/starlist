@@ -1,23 +1,33 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../models/youtube_video.dart';
 
 /// YouTubeのAPI通信を担当するサービスクラス
 class YouTubeApiService {
   final String apiKey;
+  final Dio dio;
   final String baseUrl = 'https://www.googleapis.com/youtube/v3';
 
-  YouTubeApiService({required this.apiKey});
+  YouTubeApiService({
+    required this.apiKey,
+    Dio? dio,
+  }) : this.dio = dio ?? Dio();
 
   /// キーワードに基づいて動画を検索
   Future<List<YouTubeVideo>> searchVideos(String query) async {
-    final url = '$baseUrl/search?part=snippet&q=$query&type=video&maxResults=20&key=$apiKey';
-    
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await dio.get(
+        '$baseUrl/search',
+        queryParameters: {
+          'part': 'snippet',
+          'q': query,
+          'type': 'video',
+          'maxResults': 20,
+          'key': apiKey,
+        },
+      );
       
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final data = response.data;
         final List<dynamic> items = data['items'];
         
         // 検索結果から動画IDを抽出
@@ -26,25 +36,34 @@ class YouTubeApiService {
             .toList();
         
         // 動画IDを使って詳細情報を取得
-        return await _getVideosDetails(videoIds);
+        return await getVideoDetails(videoIds);
       } else {
         throw Exception('Failed to search videos: ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      throw Exception('Search API error: ${e.message}');
     } catch (e) {
-      print('Search API error: $e');
-      return [];
+      throw Exception('Unexpected error: $e');
     }
   }
 
   /// チャンネルIDに基づいてチャンネルの動画を取得
   Future<List<YouTubeVideo>> getChannelVideos(String channelId) async {
-    final url = '$baseUrl/search?part=snippet&channelId=$channelId&type=video&order=date&maxResults=20&key=$apiKey';
-    
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await dio.get(
+        '$baseUrl/search',
+        queryParameters: {
+          'part': 'snippet',
+          'channelId': channelId,
+          'type': 'video',
+          'order': 'date',
+          'maxResults': 20,
+          'key': apiKey,
+        },
+      );
       
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final data = response.data;
         final List<dynamic> items = data['items'];
         
         // チャンネル動画から動画IDを抽出
@@ -53,25 +72,33 @@ class YouTubeApiService {
             .toList();
         
         // 動画IDを使って詳細情報を取得
-        return await _getVideosDetails(videoIds);
+        return await getVideoDetails(videoIds);
       } else {
         throw Exception('Failed to get channel videos: ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      throw Exception('Channel API error: ${e.message}');
     } catch (e) {
-      print('Channel API error: $e');
-      return [];
+      throw Exception('Unexpected error: $e');
     }
   }
 
   /// 関連動画を取得
   Future<List<YouTubeVideo>> getRelatedVideos(String videoId) async {
-    final url = '$baseUrl/search?part=snippet&relatedToVideoId=$videoId&type=video&maxResults=20&key=$apiKey';
-    
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await dio.get(
+        '$baseUrl/search',
+        queryParameters: {
+          'part': 'snippet',
+          'relatedToVideoId': videoId,
+          'type': 'video',
+          'maxResults': 20,
+          'key': apiKey,
+        },
+      );
       
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final data = response.data;
         final List<dynamic> items = data['items'];
         
         // 関連動画から動画IDを抽出
@@ -80,46 +107,60 @@ class YouTubeApiService {
             .toList();
         
         // 動画IDを使って詳細情報を取得
-        return await _getVideosDetails(videoIds);
+        return await getVideoDetails(videoIds);
       } else {
         throw Exception('Failed to get related videos: ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      throw Exception('Related videos API error: ${e.message}');
     } catch (e) {
-      print('Related videos API error: $e');
-      return [];
+      throw Exception('Unexpected error: $e');
     }
   }
 
   /// 人気動画を取得
   Future<List<YouTubeVideo>> getPopularVideos() async {
-    final url = '$baseUrl/videos?part=snippet,contentDetails,statistics&chart=mostPopular&regionCode=JP&maxResults=20&key=$apiKey';
-    
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await dio.get(
+        '$baseUrl/videos',
+        queryParameters: {
+          'part': 'snippet,contentDetails,statistics',
+          'chart': 'mostPopular',
+          'regionCode': 'JP',
+          'maxResults': 20,
+          'key': apiKey,
+        },
+      );
       
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final data = response.data;
         final List<dynamic> items = data['items'];
         
         return _parseVideos(items);
       } else {
         throw Exception('Failed to get popular videos: ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      throw Exception('Popular videos API error: ${e.message}');
     } catch (e) {
-      print('Popular videos API error: $e');
-      return [];
+      throw Exception('Unexpected error: $e');
     }
   }
 
-  /// 動画の詳細情報を取得
-  Future<YouTubeVideo?> getVideoDetails(String videoId) async {
-    final url = '$baseUrl/videos?part=snippet,contentDetails,statistics&id=$videoId&key=$apiKey';
-    
+  /// 単一の動画詳細情報を取得
+  Future<YouTubeVideo?> getVideoDetail(String videoId) async {
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await dio.get(
+        '$baseUrl/videos',
+        queryParameters: {
+          'part': 'snippet,contentDetails,statistics',
+          'id': videoId,
+          'key': apiKey,
+        },
+      );
       
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final data = response.data;
         final List<dynamic> items = data['items'];
         
         if (items.isNotEmpty) {
@@ -130,33 +171,39 @@ class YouTubeApiService {
       } else {
         throw Exception('Failed to get video details: ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      throw Exception('Video details API error: ${e.message}');
     } catch (e) {
-      print('Video details API error: $e');
-      return null;
+      throw Exception('Unexpected error: $e');
     }
   }
 
   /// 複数の動画IDから詳細情報を取得
-  Future<List<YouTubeVideo>> _getVideosDetails(List<String> videoIds) async {
+  Future<List<YouTubeVideo>> getVideoDetails(List<String> videoIds) async {
     if (videoIds.isEmpty) return [];
     
-    final joinedIds = videoIds.join(',');
-    final url = '$baseUrl/videos?part=snippet,contentDetails,statistics&id=$joinedIds&key=$apiKey';
-    
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await dio.get(
+        '$baseUrl/videos',
+        queryParameters: {
+          'part': 'snippet,contentDetails,statistics',
+          'id': videoIds.join(','),
+          'key': apiKey,
+        },
+      );
       
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final data = response.data;
         final List<dynamic> items = data['items'];
         
         return _parseVideos(items);
       } else {
         throw Exception('Failed to get videos details: ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      throw Exception('Videos details API error: ${e.message}');
     } catch (e) {
-      print('Videos details API error: $e');
-      return [];
+      throw Exception('Unexpected error: $e');
     }
   }
 

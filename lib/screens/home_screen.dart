@@ -6,6 +6,7 @@ import '../widgets/star_card.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/horizontal_section.dart';
 import '../widgets/category_card.dart';
+import '../src/features/star/screens/star_timeline_sample_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onThemeToggle;
@@ -248,18 +249,34 @@ class HomeScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'スター、カテゴリーなど',
+                            'スターや作品を検索',
                             style: TextStyle(
                               color: secondaryTextColor,
-                              fontSize: 16,
                             ),
                           ),
-                          Spacer(),
-                          Icon(
-                            Icons.mic,
-                            color: secondaryTextColor,
-                          ),
                         ],
+                      ),
+                    ),
+                    
+                    // スタータイムラインサンプルボタン（デモ用）を追加
+                    SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const StarTimelineSampleScreen(),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.timeline),
+                      label: Text('スタータイムラインのサンプルを表示'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ],

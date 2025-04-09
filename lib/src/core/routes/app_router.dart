@@ -7,6 +7,8 @@ import '../../features/content/repositories/content_repository.dart';
 import '../../features/content/screens/content_list_screen.dart';
 import '../../features/content/screens/content_detail_screen.dart';
 import '../../features/content/screens/content_create_screen.dart';
+import '../../features/youtube/youtube_explore_screen.dart';
+import '../../features/star/screens/star_timeline_sample_screen.dart';
 import '../../../main.dart';  // HomeScreenをインポート
 import '../../../routes/app_routes.dart';
 import '../../../screens/home_screen.dart';
@@ -28,6 +30,18 @@ class AppRouter {
       GoRoute(
         path: '/',
         builder: (context, state) => const HomeScreen(),
+      ),
+      
+      // YouTube探索
+      GoRoute(
+        path: '/youtube',
+        builder: (context, state) => const YouTubeExploreScreen(),
+      ),
+      
+      // スタータイムラインサンプル
+      GoRoute(
+        path: '/star-timeline',
+        builder: (context, state) => const StarTimelineSampleScreen(),
       ),
       
       // コンテンツ一覧

@@ -50,7 +50,7 @@ class YouTubeRepository {
   /// 動画の詳細情報を取得
   Future<YouTubeVideo?> getVideoDetails(String videoId) async {
     try {
-      return await apiService.getVideoDetails(videoId);
+      return await apiService.getVideoDetail(videoId);
     } catch (e) {
       print('Video details error: $e');
       return null;

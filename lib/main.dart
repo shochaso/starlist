@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
-import 'package:provider/provider.dart';
+import 'package:starlist/theme/app_theme.dart';
 
 import 'src/app.dart';  // StarlistAppをインポート
 import 'src/features/youtube/youtube_provider.dart';
@@ -17,13 +17,12 @@ import 'src/features/auth/providers/user_provider.dart';
 import 'src/features/auth/models/user_model.dart';
 import 'src/features/favorites/widgets/favorite_list.dart';
 import 'src/features/favorites/providers/favorite_provider.dart';
+import 'src/features/star/screens/star_activity_timeline_screen.dart';
 import 'screens/star_home_screen.dart';
 import 'screens/fan_home_screen.dart';
-import 'models/user.dart';
-import 'providers/user_provider.dart';
-import 'screens/login_screen.dart';
+import 'screens/landing_screen.dart';
 
-// Supabase URL と Anon Key の環境変数
+// Riverpodプロバイダー名の衝突を避けるため
 final supabaseUrlProvider = Provider<String>((ref) {
   return dotenv.env['SUPABASE_URL'] ?? '';
 });
@@ -58,47 +57,67 @@ final youtubeRepositoryProvider = Provider<YouTubeRepository>((ref) {
   return YouTubeRepository(apiService: apiService);
 });
 
-void main() {
-  runApp(const MyApp());
+final userTypeProvider = StateProvider<String>((ref) => 'fan');
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 環境変数のロード
+  await dotenv.load(fileName: '.env');
+  
+  // Supabaseの初期化
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? ''
+  );
+  
+  // アプリの実行
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => UserProvider(),
-      child: MaterialApp(
-        title: 'Starlist',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-          useMaterial3: true,
-        ),
-        home: const HomePage(),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp(
+      title: 'Starlist',
+      theme: AppTheme.lightTheme,
+      home: const LandingScreen(), // ランディングページをホームに設定
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(userProvider);
     
-    // ユーザーがログインしていない場合
-    if (userProvider.currentUser == null) {
-      return const LoginScreen();
-    }
-    
-    // ユーザータイプに基づいて画面を切り替え
-    if (userProvider.isStar) {
-      return const StarHomeScreen();
-    } else {
-      return const FanHomeScreen();
-    }
+    return userState.when(
+      data: (user) {
+        if (user == null) {
+          return const LoginScreen();
+        }
+        
+        // ユーザータイプに基づいて画面を切り替え
+        if (user.isStar) {
+          return const StarHomeScreen();
+        } else {
+          return const FanHomeScreen();
+        }
+      },
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, __) => const LoginScreen(),
+    );
   }
 }
 
@@ -128,6 +147,21 @@ class SimpleHomeScreen extends StatelessWidget {
                 );
               },
               child: const Text('テストボタン'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // アクティビティタイムライン画面に移動
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const StarActivityTimelineScreen(
+                      starId: 'mock-star-id', // テスト用のスターID
+                      title: 'アクティビティタイムライン',
+                    ),
+                  ),
+                );
+              },
+              child: const Text('タイムライン表示'),
             ),
           ],
         ),
