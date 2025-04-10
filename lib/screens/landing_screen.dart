@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:starlist/theme/app_theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'login_screen.dart';
+import 'register_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({Key? key}) : super(key: key);
@@ -89,63 +91,12 @@ class _LandingScreenState extends State<LandingScreen> {
             children: [
               TextButton(
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('ログイン'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextField(
-                            decoration: InputDecoration(
-                              labelText: 'メールアドレス',
-                            ),
-                          ),
-                          TextField(
-                            decoration: InputDecoration(
-                              labelText: 'パスワード',
-                            ),
-                            obscureText: true,
-                          ),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('キャンセル'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('ログイン'),
-                        ),
-                      ],
-                    ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
                   );
                 },
                 child: Text('ログイン'),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('新規登録'),
-                      content: Text('新規登録ページへ移動します'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('キャンセル'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('続ける'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: Text('新規登録'),
               ),
             ],
           ),
@@ -183,22 +134,9 @@ class _LandingScreenState extends State<LandingScreen> {
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('スター登録'),
-                      content: Text('スターとしての登録プロセスを開始します。'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('キャンセル'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('続ける'),
-                        ),
-                      ],
-                    ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterScreen(isStar: true)),
                   );
                 },
                 icon: Icon(Icons.star_border),
@@ -210,22 +148,9 @@ class _LandingScreenState extends State<LandingScreen> {
               const SizedBox(width: 16),
               OutlinedButton(
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('ファン登録'),
-                      content: Text('ファンとしての登録プロセスを開始します。'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('キャンセル'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('続ける'),
-                        ),
-                      ],
-                    ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterScreen(isStar: false)),
                   );
                 },
                 child: Text('ファンとして登録'),
