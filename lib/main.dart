@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 import 'package:starlist/theme/app_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import 'src/app.dart';  // StarlistAppをインポート
-import 'src/features/youtube/youtube_provider.dart';
+// StarlistAppをインポート
 import 'src/features/data_integration/repositories/youtube_repository.dart';
 import 'src/features/data_integration/services/youtube_api_service.dart';
 import 'src/features/auth/screens/login_screen.dart';
 import 'src/features/auth/screens/signup_screen.dart';
 import 'src/features/auth/supabase_provider.dart';
 import 'src/features/auth/providers/user_provider.dart';
-import 'src/features/auth/models/user_model.dart';
 import 'src/features/favorites/widgets/favorite_list.dart';
 import 'src/features/favorites/providers/favorite_provider.dart';
 import 'src/features/star/screens/star_activity_timeline_screen.dart';
 import 'screens/star_home_screen.dart';
 import 'screens/fan_home_screen.dart';
 import 'screens/landing_screen.dart';
+import 'screens/fan_register_screen.dart';
+import 'screens/register_screen.dart';
 
 // Riverpodプロバイダー名の衝突を避けるため
 final supabaseUrlProvider = Provider<String>((ref) {
@@ -89,6 +88,14 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       home: const LandingScreen(), // ランディングページをホームに設定
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/home': (context) => const HomeScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignupScreen(),
+        '/fan_register': (context) => const FanRegisterScreen(),
+        '/register': (context) => const RegisterScreen(isStar: false),
+        '/star_register': (context) => const RegisterScreen(isStar: true),
+      },
     );
   }
 }

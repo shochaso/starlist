@@ -3,6 +3,8 @@ import 'package:starlist/theme/app_theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
+import 'star_registration_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({Key? key}) : super(key: key);
@@ -16,7 +18,7 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppTheme.backgroundColor,
           gradient: RadialGradient(
             colors: [Color(0x33D10FEE), AppTheme.backgroundColor],
@@ -52,7 +54,7 @@ class _LandingScreenState extends State<LandingScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        border: Border(
+        border: const Border(
           bottom: BorderSide(
             color: AppTheme.borderColor,
             width: 1,
@@ -63,21 +65,21 @@ class _LandingScreenState extends State<LandingScreen> {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(
                 Icons.star,
                 color: AppTheme.primaryColor,
                 size: 24,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               GradientText(
                 'Starlist',
                 style: TextStyle(
@@ -93,10 +95,10 @@ class _LandingScreenState extends State<LandingScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
                   );
                 },
-                child: Text('ログイン'),
+                child: const Text('ログイン'),
               ),
             ],
           ),
@@ -110,7 +112,7 @@ class _LandingScreenState extends State<LandingScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 48),
       child: Column(
         children: [
-          GradientText(
+          const GradientText(
             'スターの日常を、もっと身近に',
             style: TextStyle(
               fontSize: 36,
@@ -120,7 +122,7 @@ class _LandingScreenState extends State<LandingScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             '動画編集の技術や時間がなくても、誰でも気軽に利用できるSNS',
             style: TextStyle(
               fontSize: 18,
@@ -136,26 +138,34 @@ class _LandingScreenState extends State<LandingScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RegisterScreen(isStar: true)),
+                    MaterialPageRoute(builder: (context) => const StarRegistrationScreen()),
                   );
                 },
-                icon: Icon(Icons.star_border),
-                label: Text('スターとして登録'),
+                icon: const Icon(Icons.star_border),
+                label: const Text('スターとして登録'),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 ),
               ),
               const SizedBox(width: 16),
-              OutlinedButton(
+              ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterScreen(isStar: false)),
-                  );
+                  Navigator.pushNamed(context, '/fan_register');
                 },
-                child: Text('ファンとして登録'),
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'ファンとして登録',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    fontFamily: GoogleFonts.notoSans().fontFamily,
+                  ),
                 ),
               ),
             ],
@@ -169,19 +179,19 @@ class _LandingScreenState extends State<LandingScreen> {
     final features = [
       {
         'icon': Icons.person_search_rounded,
-        'color': Color(0xFF8C52FF), // 紫色に変更
+        'color': const Color(0xFF8C52FF), // 紫色に変更
         'title': 'スターをもっと深く知る',
         'description': '日常生活の共有から新たな魅力を発見できます',
       },
       {
         'icon': Icons.volunteer_activism,
-        'color': Color(0xFF069668), // 音楽アイコンのカラー
+        'color': const Color(0xFF069668), // 音楽アイコンのカラー
         'title': 'スターのメンタルに配慮した設計',
         'description': '有料ファン限定コメント機能でスターのメンタルを保護',
       },
       {
         'icon': Icons.attach_money_rounded,
-        'color': Color(0xFFFF9900), // ショッピングアイコンのカラー
+        'color': const Color(0xFFFF9900), // ショッピングアイコンのカラー
         'title': '収益化の機会',
         'description': '商品レコメンドやアフィリエイトで新たな収入源を確保',
       },
@@ -191,7 +201,7 @@ class _LandingScreenState extends State<LandingScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 48),
       child: Column(
         children: [
-          GradientText(
+          const GradientText(
             '主な機能',
             style: TextStyle(
               fontSize: 24,
@@ -201,11 +211,11 @@ class _LandingScreenState extends State<LandingScreen> {
           ),
           const SizedBox(height: 32),
           Container(
-            constraints: BoxConstraints(maxWidth: 900),
+            constraints: const BoxConstraints(maxWidth: 900),
             child: GridView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
@@ -230,7 +240,7 @@ class _LandingScreenState extends State<LandingScreen> {
                         const SizedBox(height: 16),
                         Text(
                           features[index]['title'] as String,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -239,7 +249,7 @@ class _LandingScreenState extends State<LandingScreen> {
                         const SizedBox(height: 8),
                         Text(
                           features[index]['description'] as String,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppTheme.mutedForegroundColor,
                             fontSize: 14,
                           ),
@@ -262,42 +272,42 @@ class _LandingScreenState extends State<LandingScreen> {
       {
         'icon': Icons.video_library_rounded,
         'title': '動画',
-        'color': Color(0xFFDC2625),
+        'color': const Color(0xFFDC2625),
       },
       {
         'icon': Icons.library_music_rounded,
         'title': '音楽',
-        'color': Color(0xFF069668),
+        'color': const Color(0xFF069668),
       },
       {
         'icon': Icons.movie_rounded,
         'title': '映画・ドラマ',
-        'color': Color(0xFFDC2625),
+        'color': const Color(0xFFDC2625),
       },
       {
         'icon': Icons.sports_esports_rounded,
         'title': 'ゲーム',
-        'color': Color(0xFF8C52FF),
+        'color': const Color(0xFF8C52FF),
       },
       {
         'icon': Icons.menu_book_rounded,
         'title': '書籍',
-        'color': Color(0xFF4285F4),
+        'color': const Color(0xFF4285F4),
       },
       {
         'icon': Icons.shopping_cart_rounded,
         'title': 'ショッピング',
-        'color': Color(0xFFFF9900),
+        'color': const Color(0xFFFF9900),
       },
       {
         'icon': Icons.restaurant_rounded,
         'title': '飲食情報',
-        'color': Color(0xFFFF5252),
+        'color': const Color(0xFFFF5252),
       },
       {
         'icon': Icons.phone_android_rounded,
         'title': 'スマホアプリ',
-        'color': Color(0xFF0AB2CC),
+        'color': const Color(0xFF0AB2CC),
       },
     ];
 
@@ -305,7 +315,7 @@ class _LandingScreenState extends State<LandingScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 48),
       child: Column(
         children: [
-          GradientText(
+          const GradientText(
             '提供コンテンツ',
             style: TextStyle(
               fontSize: 24,
@@ -315,11 +325,11 @@ class _LandingScreenState extends State<LandingScreen> {
           ),
           const SizedBox(height: 32),
           Container(
-            constraints: BoxConstraints(maxWidth: 900),
+            constraints: const BoxConstraints(maxWidth: 900),
             child: GridView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
@@ -343,7 +353,7 @@ class _LandingScreenState extends State<LandingScreen> {
                         const SizedBox(height: 12),
                         Text(
                           contents[index]['title'] as String,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -374,7 +384,7 @@ class _LandingScreenState extends State<LandingScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        border: Border(
+        border: const Border(
           top: BorderSide(
             color: AppTheme.borderColor,
             width: 1,
@@ -384,7 +394,7 @@ class _LandingScreenState extends State<LandingScreen> {
       ),
       child: Column(
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GradientText(
@@ -403,15 +413,15 @@ class _LandingScreenState extends State<LandingScreen> {
             children: [
               TextButton(
                 onPressed: () => _navigateToPage(context, '利用規約'),
-                child: Text('利用規約'),
+                child: const Text('利用規約'),
               ),
               TextButton(
                 onPressed: () => _navigateToPage(context, 'プライバシーポリシー'),
-                child: Text('プライバシーポリシー'),
+                child: const Text('プライバシーポリシー'),
               ),
               TextButton(
                 onPressed: () => _navigateToPage(context, 'お問い合わせ'),
-                child: Text('お問い合わせ'),
+                child: const Text('お問い合わせ'),
               ),
             ],
           ),
@@ -432,7 +442,7 @@ class DetailPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
               begin: Alignment.topLeft,
@@ -442,7 +452,7 @@ class DetailPage extends StatelessWidget {
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppTheme.backgroundColor,
           gradient: RadialGradient(
             colors: [Color(0x33D10FEE), AppTheme.backgroundColor],
@@ -462,27 +472,27 @@ class DetailPage extends StatelessWidget {
                   size: 64.0,
                   color: _getColorForPage(title),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
-                  '${title}のページです。ここには${title}に関する情報が表示されます。',
-                  style: TextStyle(fontSize: 16),
+                  '$titleのページです。ここには$titleに関する情報が表示されます。',
+                  style: const TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('戻る'),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   ),
+                  child: const Text('戻る'),
                 ),
               ],
             ),
@@ -530,27 +540,27 @@ class DetailPage extends StatelessWidget {
   Color _getColorForPage(String title) {
     switch (title) {
       case '動画':
-        return Color(0xFFDC2625);
+        return const Color(0xFFDC2625);
       case '音楽':
-        return Color(0xFF069668);
+        return const Color(0xFF069668);
       case 'ゲーム':
-        return Color(0xFF8C52FF);
+        return const Color(0xFF8C52FF);
       case 'スマホアプリ':
-        return Color(0xFF0AB2CC);
+        return const Color(0xFF0AB2CC);
       case '映画・ドラマ':
-        return Color(0xFFDC2625);
+        return const Color(0xFFDC2625);
       case '書籍':
-        return Color(0xFF4285F4);
+        return const Color(0xFF4285F4);
       case 'ショッピング':
-        return Color(0xFFFF9900);
+        return const Color(0xFFFF9900);
       case '飲食情報':
-        return Color(0xFFFF5252);
+        return const Color(0xFFFF5252);
       case 'スターをもっと深く知る':
-        return Color(0xFF8C52FF);
+        return const Color(0xFF8C52FF);
       case 'スターのメンタルに配慮した設計':
-        return Color(0xFF069668);
+        return const Color(0xFF069668);
       case '収益化の機会':
-        return Color(0xFFFF9900);
+        return const Color(0xFFFF9900);
       default:
         return AppTheme.primaryColor;
     }

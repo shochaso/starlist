@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // カラーテーマ - Webデザインのカラーに更新
@@ -61,13 +62,13 @@ class AppTheme {
       BoxShadow(
         color: Colors.black.withOpacity(0.05),
         blurRadius: 10,
-        offset: Offset(0, 4),
+        offset: const Offset(0, 4),
       ),
     ],
   );
 
   // アニメーション定義
-  static Duration animationDuration = Duration(milliseconds: 300);
+  static Duration animationDuration = const Duration(milliseconds: 300);
   static Curve animationCurve = Curves.easeOut;
 
   // ランクカラー
@@ -86,17 +87,75 @@ class AppTheme {
 
   // テーマデータ
   static ThemeData get lightTheme {
+    // TextThemeで完全に日本語フォントをセットアップ
+    final TextTheme textTheme = TextTheme(
+      displayLarge: GoogleFonts.mPlusRounded1c(
+        textStyle: const TextStyle(
+          color: foregroundColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 48,
+        ),
+      ),
+      displayMedium: GoogleFonts.mPlusRounded1c(
+        textStyle: const TextStyle(
+          color: foregroundColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 36,
+        ),
+      ),
+      displaySmall: GoogleFonts.mPlusRounded1c(
+        textStyle: const TextStyle(
+          color: foregroundColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 24,
+        ),
+      ),
+      headlineMedium: GoogleFonts.mPlusRounded1c(
+        textStyle: const TextStyle(
+          color: foregroundColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
+      titleLarge: GoogleFonts.mPlusRounded1c(
+        textStyle: const TextStyle(
+          color: foregroundColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+      titleMedium: GoogleFonts.mPlusRounded1c(
+        textStyle: const TextStyle(
+          color: foregroundColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
+      ),
+      bodyLarge: GoogleFonts.mPlusRounded1c(
+        textStyle: const TextStyle(
+          color: foregroundColor,
+          fontSize: 16,
+        ),
+      ),
+      bodyMedium: GoogleFonts.mPlusRounded1c(
+        textStyle: const TextStyle(
+          color: mutedForegroundColor,
+          fontSize: 14,
+        ),
+      ),
+    );
+    
     return ThemeData(
       brightness: Brightness.light,
       primaryColor: primaryColor,
-      colorScheme: ColorScheme.light(
+      fontFamily: GoogleFonts.mPlusRounded1c().fontFamily,
+      textTheme: textTheme, // カスタムテキストテーマを適用
+      colorScheme: const ColorScheme.light(
         primary: primaryColor,
         secondary: secondaryColor,
-        background: backgroundColor,
         surface: cardBackgroundColor,
         onPrimary: primaryForeground,
         onSecondary: secondaryForeground,
-        onBackground: foregroundColor,
         onSurface: cardForegroundColor,
         error: destructiveColor,
         onError: destructiveForeground,
@@ -107,7 +166,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLg),
-          side: BorderSide(color: borderColor),
+          side: const BorderSide(color: borderColor),
         ),
       ),
       appBarTheme: AppBarTheme(
@@ -115,10 +174,12 @@ class AppTheme {
         foregroundColor: foregroundColor,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(
-          color: foregroundColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
+        titleTextStyle: GoogleFonts.mPlusRounded1c(
+          textStyle: const TextStyle(
+            color: foregroundColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -129,17 +190,17 @@ class AppTheme {
             borderRadius: BorderRadius.circular(radiusMd),
           ),
           elevation: 0,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
-          side: BorderSide(color: primaryColor),
+          side: const BorderSide(color: primaryColor),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusMd),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -148,47 +209,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusMd),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
-      ),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(
-          color: foregroundColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 48,
-        ),
-        displayMedium: TextStyle(
-          color: foregroundColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 36,
-        ),
-        displaySmall: TextStyle(
-          color: foregroundColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 24,
-        ),
-        headlineMedium: TextStyle(
-          color: foregroundColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-        titleLarge: TextStyle(
-          color: foregroundColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
-        titleMedium: TextStyle(
-          color: foregroundColor,
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
-        bodyLarge: TextStyle(
-          color: foregroundColor,
-          fontSize: 16,
-        ),
-        bodyMedium: TextStyle(
-          color: mutedForegroundColor,
-          fontSize: 14,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
     );
