@@ -2,93 +2,117 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlist - スターの日常を共有</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>Starlist - スターの日常を共有</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- 基本スタイリング --- */
+        :root {
+             /* Safe area insets */
+            --safe-area-inset-top: env(safe-area-inset-top, 0px);
+            --safe-area-inset-right: env(safe-area-inset-right, 0px);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-area-inset-left: env(safe-area-inset-left, 0px);
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* システムフォント優先 */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Interフォント優先 */
             background-color: #f8f9fa; /* 背景色 */
             color: #333; /* テキスト色 */
             margin: 0;
             padding: 0;
-            padding-bottom: 80px; /* フッターナビゲーション分のスペース */
+            /* Adjust padding-bottom to account for footer nav height and safe area */
+            padding-bottom: calc(60px + var(--safe-area-inset-bottom)); /* Approximate footer height */
         }
 
         /* --- iOS風ヘッダースタイル --- */
         .ios-header {
-            background-color: rgba(255, 255, 255, 0.8); /* 半透明の白 */
-            border-bottom: 1px solid #f1f1f1; /* 細い境界線 */
-            backdrop-filter: blur(10px); /* すりガラス効果 */
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        /* --- ステータスバーのシミュレーション --- */
-        .status-bar {
-            padding-top: 10px; /* 上部の余白 */
-            height: 30px;
-            background-color: white;
-            font-weight: 600;
+            background-color: rgba(255, 255, 255, 0.85); /* Slightly less transparent white */
+            border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
+            backdrop-filter: blur(12px); /* すりガラス効果 */
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 40;
+            /* Add safe area padding */
+            padding-top: var(--safe-area-inset-top);
         }
 
         /* --- サイドバースタイル --- */
         .sidebar {
             position: fixed;
             top: 0;
-            left: -80%; /* モバイルでは初期状態で画面外 */
-            width: 80%; /* モバイルでの幅 */
+            left: 0; /* Start at left for transform */
+            width: 85%; /* Adjust width slightly */
+            max-width: 280px; /* 最大幅を設定 */
             height: 100%;
             background-color: white;
             z-index: 1000; /* 他の要素より手前に表示 */
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* 影 */
-            transition: left 0.3s ease; /* 開閉アニメーション */
-            overflow-y: auto; /* 内容が多い場合にスクロール */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
+            transition: transform 0.3s ease; /* Use transform for smoother animation */
+            transform: translateX(-100%); /* Start fully off-screen */
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column; /* Stack header and nav vertically */
+            border-radius: 0 0.75rem 0.75rem 0; /* 右下に丸み */
+            /* Add safe area padding */
+            padding-top: var(--safe-area-inset-top);
+            padding-bottom: var(--safe-area-inset-bottom);
         }
 
         .sidebar.active {
-            left: 0; /* 表示状態 */
+            transform: translateX(0); /* Slide in */
         }
 
         .sidebar-header {
             display: flex;
             align-items: center;
-            padding: 20px 16px;
-            border-bottom: 1px solid #f1f1f1;
+            padding: 1rem 1rem; /* Use rem */
+            border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
+            flex-shrink: 0; /* Prevent header shrinking */
         }
 
         .sidebar-nav {
-            padding: 16px 0;
+            padding: 1rem 0; /* Use rem */
+            flex-grow: 1; /* Allow nav to take remaining space */
+            overflow-y: auto; /* Enable scrolling for nav items if needed */
         }
 
         .sidebar-nav-item {
             display: flex;
             align-items: center;
-            padding: 12px 16px;
-            color: #666; /* 通常時の色 */
+            padding: 0.75rem 1rem; /* Use rem */
+            color: #4b5563; /* Tailwind gray-600 */
             text-decoration: none;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, color 0.2s, border-left-color 0.2s; /* Add transitions */
+            border-left: 4px solid transparent; /* Placeholder for active state */
+            border-radius: 0 0.5rem 0.5rem 0; /* Inner rounding */
+            margin: 0.25rem 0.5rem 0.25rem 0; /* Add some spacing */
         }
 
         .sidebar-nav-item i {
             width: 20px; /* アイコン幅固定 */
             text-align: center;
+            margin-right: 1rem; /* アイコンとテキストの間隔 */
+            font-size: 1.1rem; /* Adjust icon size */
+            flex-shrink: 0;
         }
+         .sidebar-nav-item span {
+             white-space: nowrap;
+             overflow: hidden;
+             text-overflow: ellipsis;
+         }
 
-        .sidebar-nav-item span {
-            margin-left: 16px;
-        }
 
         .sidebar-nav-item:hover {
-            background-color: #f8f9fa; /* ホバー時の背景色 */
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+            color: #2563eb; /* Tailwind blue-600 */
         }
 
         .sidebar-nav-item.active {
-            color: #3b82f6; /* アクティブ時の色 (青) */
+            color: #2563eb; /* Tailwind blue-600 */
             font-weight: 600;
-            background-color: #f0f7ff; /* アクティブ時の背景色 */
-            border-left: 3px solid #3b82f6; /* アクティブ時の左線 */
+            background-color: #eff6ff; /* Tailwind blue-50 */
+            border-left: 4px solid #2563eb; /* Tailwind blue-600 */
         }
 
         /* --- サイドバーオーバーレイ (モバイル用) --- */
@@ -98,13 +122,16 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* 半透明の黒 */
+            background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
             z-index: 999; /* サイドバーより下、コンテンツより上 */
             display: none; /* 通常は非表示 */
+            opacity: 0; /* Start hidden */
+            transition: opacity 0.3s ease; /* Fade animation */
         }
 
         .sidebar-overlay.active {
             display: block; /* サイドバー表示時に表示 */
+            opacity: 1; /* Fade in */
         }
 
         /* --- メインコンテンツエリア --- */
@@ -118,41 +145,51 @@
         /* --- コンテンツカードスタイル --- */
         .content-card {
             background-color: white;
-            border-radius: 12px; /* 角丸 */
-            margin-bottom: 16px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* 薄い影 */
+            border-radius: 0.75rem; /* 12px */
+            margin-bottom: 1rem; /* 16px */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07); /* Adjusted shadow */
             overflow: hidden; /* Ensure child elements don't overflow rounded corners */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add hover effect */
         }
+        .content-card:hover {
+            /* transform: translateY(-2px); */ /* Optional: Remove lift on hover if preferred */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); /* Tailwind shadow-lg */
+        }
+        /* 横スクロール内のカードは下マージン不要 */
+        .horizontal-scroll-container .content-card {
+            margin-bottom: 0;
+        }
+
 
         /* --- メンバーシップバッジスタイル --- */
         .membership-badge {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
+            font-size: 0.625rem; /* 10px */
+            padding: 0.125rem 0.625rem; /* 2px 10px */
+            border-radius: 9999px; /* Fully rounded pill shape */
             font-weight: 500;
+            display: inline-flex; /* Use flex for alignment if needed */
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2; /* Adjust line height */
+            white-space: nowrap; /* Prevent wrapping */
         }
 
-        .membership-badge.premium {
-            background-color: #f0e6ff; /* 薄紫 */
-            color: #8b5cf6; /* 紫 */
-        }
+        /* プラン名に合わせたバッジスタイル (Tailwind color equivalents) */
+        .membership-badge.silver { background-color: #e5e7eb; color: #4b5563; } /* bg-gray-200 text-gray-700 */
+        .membership-badge.gold { background-color: #fef3c7; color: #b45309; } /* bg-amber-100 text-amber-700 */
+        .membership-badge.platinum { background-color: #e0e7ff; color: #4338ca; } /* bg-indigo-100 text-indigo-700 */
+        .membership-badge.premium { background-color: #f3e8ff; color: #7e22ce; } /* bg-purple-100 text-purple-700 */
+        .membership-badge.standard { background-color: #dbeafe; color: #1d4ed8; } /* bg-blue-100 text-blue-700 */
+        .membership-badge.light { background-color: #d1fae5; color: #047857; } /* bg-green-100 text-green-700 */
 
-        .membership-badge.standard {
-            background-color: #e6f0ff; /* 薄青 */
-            color: #3b82f6; /* 青 */
-        }
-
-        .membership-badge.light {
-            background-color: #e6ffed; /* 薄緑 */
-            color: #10b981; /* 緑 */
-        }
 
         /* --- スイッチコンポーネント (iOS風トグル) --- */
         .switch {
             position: relative;
             display: inline-block;
-            width: 46px;
-            height: 24px;
+            width: 51px; /* iOS standard width */
+            height: 31px; /* iOS standard height */
+            flex-shrink: 0; /* Prevent shrinking in flex layouts */
         }
 
         .switch input {
@@ -168,94 +205,80 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #E5E5EA; /* オフ時の背景色 (灰色) */
+            background-color: #E5E5EA; /* オフ時の背景色 (iOS light gray) */
             transition: .4s;
+            border-radius: 31px; /* Fully rounded */
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 20px;
-            width: 20px;
-            left: 2px;
-            bottom: 2px;
+            height: 27px; /* Knob size */
+            width: 27px;  /* Knob size */
+            left: 2px;   /* Initial position */
+            bottom: 2px; /* Initial position */
             background-color: white; /* スライドする円 */
             transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Subtle shadow */
         }
 
         input:checked + .slider {
-            background-color: #3b82f6; /* オン時の背景色 (青) */
+            background-color: #34C759; /* オン時の背景色 (iOS green) */
         }
 
         input:focus + .slider {
-            box-shadow: 0 0 1px #3b82f6; /* フォーカス時のアウトライン */
+            box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.5); /* フォーカス時のアウトライン (iOS green with transparency) */
         }
 
         input:checked + .slider:before {
-            transform: translateX(22px); /* オン時に円を右に移動 */
-        }
-
-        /* 丸いスライダー */
-        .slider.round {
-            border-radius: 24px;
-        }
-
-        .slider.round:before {
-            border-radius: 50%;
+            transform: translateX(20px); /* オン時に円を右に移動 (51px - 4px padding - 27px knob = 20px) */
         }
 
         /* --- フッターナビゲーションスタイル --- */
         .footer-nav {
-            background-color: white;
-            border-top: 1px solid #f1f1f1; /* 上境界線 */
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+            border-top: 1px solid #e5e7eb; /* Tailwind gray-200 */
+            backdrop-filter: blur(10px); /* Blur effect */
+            -webkit-backdrop-filter: blur(10px);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 30; /* Ensure it's above content but below modals/sidebar overlay */
+            display: flex;
+            justify-content: space-around;
+            align-items: center; /* Vertically center items */
+            height: 60px; /* Fixed height */
+            /* Add safe area padding */
+            padding-bottom: var(--safe-area-inset-bottom);
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05); /* Subtle top shadow */
         }
         .footer-nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            color: #8E8E93; /* 通常時の色 */
-            font-size: 0.5rem; /* 文字サイズを2サイズ小さく */
+            justify-content: center; /* Center content vertically */
+            color: #6b7280; /* Tailwind gray-500 */
+            font-size: 10px; /* iOS standard label size */
             text-decoration: none;
             flex: 1; /* Flexboxで均等割り付け */
             text-align: center;
+            padding: 4px 0; /* Padding within the item */
+            transition: color 0.2s ease; /* Smooth color transition */
+            position: relative; /* Needed for potential badges or indicators */
+            height: 100%; /* Fill the footer height */
         }
 
         .footer-nav-item i {
-            font-size: 1.1rem; /* アイコンサイズを1サイズ小さく */
-            margin-bottom: 2px;
+            font-size: 1.4rem; /* アイコンサイズ調整 */
+            margin-bottom: 3px; /* アイコンとテキストの間隔 */
+            line-height: 1; /* Prevent extra space */
         }
 
         .footer-nav-item.active {
-            color: #3b82f6; /* アクティブ時の色 (青) */
+            color: #2563eb; /* Tailwind blue-600 */
         }
-        /* 中央のアイコンを大きく、かつ上下中央に配置 */
-        .footer-nav-item.center-icon {
-            position: relative;
-            margin-top: -15px; /* 上に持ち上げる値を調整 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: -22px; /* 上に持ち上げる値を調整：-15px → -22px（7px上に移動） */
-        }
-        .footer-nav-item.center-icon i {
-            font-size: 1.5rem; /* アイコンサイズ */
-            margin-bottom: 0; /* テキストがないのでマージン不要 */
-            line-height: 1; /* アイコンの縦位置調整 */
-            background-color: #3b82f6;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .footer-nav-item.center-icon span {
-            display: none; /* テキスト非表示 */
-        }
-
 
         /* --- レスポンシブデザイン (デスクトップ) --- */
         @media (min-width: 768px) {
@@ -263,7 +286,12 @@
                 left: 0; /* デスクトップでは常に表示 */
                 width: 240px; /* デスクトップでの幅 */
                 box-shadow: none;
-                border-right: 1px solid #f1f1f1;
+                border-right: 1px solid #e5e7eb; /* Tailwind gray-200 */
+                border-radius: 0; /* Remove rounding on desktop */
+                transform: translateX(0); /* Ensure it's visible */
+                 /* Adjust padding for desktop */
+                padding-top: 0;
+                padding-bottom: 0;
             }
 
             .content-with-sidebar {
@@ -277,19 +305,25 @@
             .sidebar-overlay {
                 display: none !important; /* オーバーレイを常に非表示 */
             }
+
+            /* Hide footer nav on desktop if desired */
+            /* .footer-nav { display: none; } */
+            /* body { padding-bottom: 0; } */ /* Remove body padding if footer is hidden */
         }
 
         /* --- グラフプレースホルダースタイル --- */
         .chart-placeholder {
-            background-color: #f1f5f9; /* bg-gray-100 */
-            border: 1px dashed #cbd5e1; /* border-gray-300 */
+            background-color: #f3f4f6; /* bg-gray-100 */
+            border: 1px dashed #d1d5db; /* border-gray-300 */
             min-height: 150px; /* グラフの最小の高さ */
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #64748b; /* text-gray-500 */
+            color: #6b7280; /* text-gray-500 */
             font-size: 0.875rem; /* text-sm */
-            border-radius: 0.5rem; /* rounded-lg */
+            border-radius: 0.75rem; /* rounded-xl */
+            position: relative; /* For absolute positioning of text inside */
+            padding: 1rem; /* Add padding */
         }
         .bar-chart {
             display: flex;
@@ -297,275 +331,206 @@
             gap: 0.5rem; /* space-x-2 */
             height: 100px; /* 棒グラフの高さ */
             padding: 0.5rem;
+            width: 100%; /* Take full width */
         }
         .bar {
-            background-color: #60a5fa; /* bg-blue-400 */
+            background-color: #93c5fd; /* bg-blue-300 */
             flex-grow: 1;
-            border-radius: 0.25rem; /* rounded-sm */
+            border-radius: 0.375rem; /* rounded-md */
+            transition: height 0.3s ease, background-color 0.3s ease; /* Add transition */
         }
+        .bar:hover {
+            background-color: #60a5fa; /* bg-blue-400 */
+        }
+
+        /* 横スクロールコンテナ + スクロールスナップ */
+        .horizontal-scroll-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem; /* 要素間のスペース */
+            /* Scroll Snap Properties */
+            scroll-snap-type: x mandatory; /* 横方向のスナップを必須にする */
+            scroll-behavior: smooth; /* スムーズスクロール */
+            -webkit-overflow-scrolling: touch; /* iOSでの慣性スクロール */
+            /* Adjust padding for snap alignment */
+            padding: 0.5rem 1rem; /* Add vertical padding and keep horizontal */
+            margin-left: -1rem; /* Counteract parent padding */
+            margin-right: -1rem; /* Counteract parent padding */
+
+            /* Hide scrollbar */
+            &::-webkit-scrollbar { display: none; }
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* スクロールする各アイテムのスナップ位置 */
+        .horizontal-scroll-container > * {
+            scroll-snap-align: start; /* 各アイテムの開始位置(左端)でスナップ */
+            flex-shrink: 0; /* アイテムが縮まないように */
+        }
+        /* Add margin to the first and last items to ensure padding is respected */
+         .horizontal-scroll-container > :first-child {
+             margin-left: 1rem;
+         }
+         .horizontal-scroll-container > :last-child {
+             margin-right: 1rem;
+         }
+
+        /* --- Story Circle Styles (Removed as per user request to prioritize first code's feed) --- */
+        /* .story-circle-container { ... } */
+        /* .story-item { ... } */
+        /* ... etc ... */
 
     </style>
 </head>
-<body>
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+<body class="antialiased"> <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h1 class="text-xl font-bold">Starlist</h1>
-            <button class="ml-auto text-gray-500 md:hidden" id="close-sidebar" title="サイドバーを閉じる">
-                <i class="fas fa-times"></i>
+            <h1 class="text-xl font-bold text-blue-600">Starlist</h1>
+            <button class="ml-auto text-gray-500 hover:text-gray-700 md:hidden" id="close-sidebar" title="サイドバーを閉じる">
+                <i class="fas fa-times fa-lg"></i>
             </button>
         </div>
         <div class="sidebar-nav">
-            <a href="#" class="sidebar-nav-item active" data-tab="feed-view">
-                <i class="fas fa-home"></i>
-                <span>ホーム</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="search-view">
-                <i class="fas fa-search"></i>
-                <span>検索</span>
-            </a>
-             <a href="#" class="sidebar-nav-item" data-tab="follow-view">
-                <i class="fas fa-users"></i>
-                <span>フォロー中</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="ranking-view">
-                <i class="fas fa-fire"></i>
-                <span>人気のスター</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="category-view">
-                <i class="fas fa-th-large"></i>
-                <span>カテゴリー</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="mylist-view">
-                <i class="fas fa-star"></i>
-                <span>マイリスト</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="ocr-view">
-                <i class="fas fa-camera"></i>
-                <span>コンテンツ取り込み</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="star-dashboard-view">
-                <i class="fas fa-chart-pie"></i>
-                <span>スターダッシュボード</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="profile-view">
-                <i class="fas fa-user"></i>
-                <span>プロフィール</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="subscription-view">
-                <i class="fas fa-crown"></i>
-                <span>会員制度</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" data-tab="settings-view">
-                <i class="fas fa-cog"></i>
-                <span>設定</span>
-            </a>
+            <a href="#" class="sidebar-nav-item active" data-tab="feed-view"> <i class="fas fa-home"></i> <span>ホーム</span> </a>
+            <a href="#" class="sidebar-nav-item" data-tab="search-view"> <i class="fas fa-search"></i> <span>検索</span> </a>
+            <a href="#" class="sidebar-nav-item" data-tab="follow-view"> <i class="fas fa-users"></i> <span>フォロー中</span> </a> <a href="#" class="sidebar-nav-item" data-tab="ranking-view"> <i class="fas fa-fire"></i> <span>人気のスター</span> </a>
+            <a href="#" class="sidebar-nav-item" data-tab="category-view"> <i class="fas fa-th-large"></i> <span>カテゴリー</span> </a>
+            <a href="#" class="sidebar-nav-item" data-tab="mylist-view"> <i class="fas fa-star"></i> <span>マイリスト</span> </a>
+            <a href="#" class="sidebar-nav-item" data-tab="ocr-view"> <i class="fas fa-camera"></i> <span>コンテンツ取り込み</span> </a>
+            <a href="#" class="sidebar-nav-item" data-tab="star-dashboard-view"> <i class="fas fa-chart-pie"></i> <span>スターダッシュボード</span> </a>
+            <a href="#" class="sidebar-nav-item" data-tab="profile-view"> <i class="fas fa-user"></i> <span>プロフィール</span> </a> <a href="#" class="sidebar-nav-item" data-tab="subscription-view"> <i class="fas fa-crown"></i> <span>会員制度</span> </a>
+            <a href="#" class="sidebar-nav-item" data-tab="settings-view"> <i class="fas fa-cog"></i> <span>設定</span> </a>
         </div>
     </aside>
 
     <div class="content-with-sidebar">
-        <div class="status-bar w-full flex justify-between px-4 text-sm ios-header fixed top-0 z-50">
-            <span>9:41</span>
-            <div>
-                <span class="mr-2"><i class="fas fa-signal"></i></span>
-                <span class="mr-2"><i class="fas fa-wifi"></i></span>
-                <span><i class="fas fa-battery-full"></i></span>
-            </div>
-        </div>
 
-        <header class="ios-header fixed top-10 w-full z-40 py-3 px-4 flex justify-between items-center">
-            <button class="mobile-menu-button text-lg mr-2" id="open-sidebar" title="メニューを開く">
+        <header class="ios-header fixed top-0 left-0 right-0 md:left-[240px] py-3 px-4 flex justify-between items-center h-[60px]"> <button class="mobile-menu-button text-gray-600 hover:text-blue-600 text-lg mr-2" id="open-sidebar" title="メニューを開く">
                 <i class="fas fa-bars"></i>
             </button>
-            <h1 class="text-xl font-bold">Starlist</h1>
-            <div class="flex items-center">
-                <button class="mr-3 text-lg" title="通知">
+            <h1 class="text-lg font-semibold text-center flex-grow md:text-left md:flex-grow-0">ホーム</h1> <div class="flex items-center space-x-4">
+                <button class="text-gray-600 hover:text-blue-600 text-lg" title="通知">
                     <i class="far fa-bell"></i>
-                </button>
-                <button class="text-lg" title="設定">
-                    <i class="fas fa-gear"></i>
-                </button>
+                    </button>
+                <button class="text-gray-600 hover:text-blue-600 text-lg" title="設定" data-tab="settings-view"> <i class="fas fa-cog"></i> </button>
             </div>
         </header>
 
-        <main class="pt-28 pb-16 px-4">
+        <main class="pt-[calc(60px+1rem)] pb-24 px-4 md:px-6 lg:px-8"> <section id="feed-view" class="mb-8">
 
-            <section id="feed-view" class="mb-8">
-                <div class="overflow-x-auto mb-6">
-                    <div class="flex space-x-4 py-2">
-                        <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-yellow-500 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" alt="自分" class="w-10 h-10">
+                <h2 class="text-xl font-bold mb-4">おすすめのスター</h2>
+                <div class="horizontal-scroll-container mb-8">
+                    <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-500 p-1 mb-3 flex items-center justify-center shadow-md">
+                            <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                <i class="fab fa-youtube text-red-500 text-3xl"></i>
                                 </div>
-                            </div>
-                            <span class="text-xs mt-1">マイリスト</span>
                         </div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="スター1" class="w-10 h-10">
-                                </div>
-                            </div>
-                            <span class="text-xs mt-1">田中 太郎</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-blue-400 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/twitter/twitter-original.svg" alt="スター2" class="w-10 h-10">
-                                </div>
-                            </div>
-                            <span class="text-xs mt-1">佐藤 花子</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-red-400 to-yellow-400 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg" alt="スター3" class="w-10 h-10">
-                                </div>
-                            </div>
-                            <span class="text-xs mt-1">鈴木 次郎</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-300 to-red-400 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="スター4" class="w-10 h-10">
-                                </div>
-                            </div>
-                            <span class="text-xs mt-1">山田 一郎</span>
-                        </div>
+                        <h4 class="text-sm font-semibold text-center truncate w-full mb-1">Hikakin (ヒカキン)</h4>
+                        <p class="text-xs text-gray-500 mb-3 text-center">トップYouTuber</p>
+                        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button>
                     </div>
+                     <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1 mb-3 flex items-center justify-center shadow-md">
+                            <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                <i class="fab fa-instagram text-pink-500 text-3xl"></i>
+                                </div>
+                        </div>
+                        <h4 class="text-sm font-semibold text-center truncate w-full mb-1">渡辺直美</h4>
+                        <p class="text-xs text-gray-500 mb-3 text-center">インフルエンサー</p>
+                        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button>
+                    </div>
+                    <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-sky-500 p-1 mb-3 flex items-center justify-center shadow-md">
+                            <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                <i class="fas fa-user-tie text-blue-500 text-3xl"></i>
+                                </div>
+                        </div>
+                        <h4 class="text-sm font-semibold text-center truncate w-full mb-1">有吉弘行</h4>
+                        <p class="text-xs text-gray-500 mb-3 text-center">タレント</p>
+                        <button class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー中</button> </div>
+                    <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-teal-500 p-1 mb-3 flex items-center justify-center shadow-md">
+                            <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                <i class="fas fa-music text-green-500 text-3xl"></i>
+                                </div>
+                        </div>
+                        <h4 class="text-sm font-semibold text-center truncate w-full mb-1">米津玄師</h4>
+                        <p class="text-xs text-gray-500 mb-3 text-center">ミュージシャン</p>
+                        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button>
+                    </div>
+                    <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-gamepad text-indigo-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">人気ストリーマー E</h4> <p class="text-xs text-gray-500 mb-3 text-center">ゲーム配信者</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                    <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-utensils text-orange-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">グルメ系 F</h4> <p class="text-xs text-gray-500 mb-3 text-center">フードブロガー</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                    <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-400 to-rose-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-heartbeat text-rose-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">フィットネス G</h4> <p class="text-xs text-gray-500 mb-3 text-center">トレーナー</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                    <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-light-blue-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-plane text-cyan-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">旅好き H</h4> <p class="text-xs text-gray-500 mb-3 text-center">トラベラー</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                    <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-book text-amber-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">書評家 I</h4> <p class="text-xs text-gray-500 mb-3 text-center">書評ブロガー</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="content-card p-4">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="スター1" class="w-6 h-6">
-                                </div>
-                            </div>
-                            <div class="ml-3">
-                                <div class="flex items-center">
-                                    <h3 class="text-sm font-semibold">田中 太郎</h3>
-                                    <span class="membership-badge premium ml-2">プレミアム</span>
-                                </div>
-                                <p class="text-xs text-gray-500">2時間前</p>
-                            </div>
-                        </div>
-                        <p class="text-sm mb-3">最近見たYouTube動画です！アニメのレビューが面白かったです。</p>
-                        <div class="bg-gray-100 rounded-lg p-3 flex items-start">
-                            <div class="text-red-600 mr-3 text-lg"><i class="fab fa-youtube"></i></div>
-                            <div>
-                                <h4 class="text-sm font-semibold">アニメレビュー：鬼滅の刃 最新話について語る</h4>
-                                <p class="text-xs text-gray-600">アニメチャンネル - 35:21</p>
-                            </div>
-                        </div>
-                        <div class="mt-3 flex justify-between items-center">
-                            <div class="flex space-x-4">
-                                <button class="text-gray-500 text-sm" title="いいね"><i class="far fa-heart"></i> 128</button>
-                                <button class="text-gray-500 text-sm" title="コメント"><i class="far fa-comment"></i> 24</button>
-                            </div>
-                            <button class="text-gray-500 text-sm" title="保存"><i class="far fa-bookmark"></i></button>
-                        </div>
-                    </div>
+                <h2 class="text-xl font-bold mb-4 mt-10">ジャンル別おすすめスター</h2>
 
-                    <div class="content-card p-4">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-400 to-blue-400 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/twitter/twitter-original.svg" alt="スター2" class="w-6 h-6">
-                                </div>
-                            </div>
-                            <div class="ml-3">
-                                <div class="flex items-center">
-                                    <h3 class="text-sm font-semibold">佐藤 花子</h3>
-                                    <span class="membership-badge standard ml-2">スタンダード</span>
-                                </div>
-                                <p class="text-xs text-gray-500">4時間前</p>
-                            </div>
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800">俳優</h3>
+                    <div class="horizontal-scroll-container mb-4">
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-male text-blue-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">俳優 男性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">実力派</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-user-tie text-indigo-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">俳優 男性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">若手注目株</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-theater-masks text-purple-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">俳優 男性 C</h4> <p class="text-xs text-gray-500 mb-3 text-center">舞台俳優</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
                         </div>
-                        <p class="text-sm mb-3">最近ヘビロテしている曲です！作業中に聴くと集中できます♪</p>
-                        <div class="bg-gray-100 rounded-lg p-3 flex items-start">
-                            <div class="text-green-600 mr-3 text-lg"><i class="fab fa-spotify"></i></div>
-                            <div>
-                                <h4 class="text-sm font-semibold">Lo-Fi Study Beats</h4>
-                                <p class="text-xs text-gray-600">ChillHop Music - アルバム</p>
-                            </div>
+                    <div class="horizontal-scroll-container">
+                         <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-female text-pink-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">女優 女性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">映画主演</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-user-tag text-purple-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">女優 女性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">モデル兼</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-rose-400 to-pink-600 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-star text-yellow-400 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">女優 女性 C</h4> <p class="text-xs text-gray-500 mb-3 text-center">ドラマ中心</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
                         </div>
-                        <div class="mt-3 flex justify-between items-center">
-                            <div class="flex space-x-4">
-                                <button class="text-gray-500 text-sm" title="いいね"><i class="far fa-heart"></i> 86</button>
-                                <button class="text-gray-500 text-sm" title="コメント"><i class="far fa-comment"></i> 12</button>
-                            </div>
-                            <button class="text-gray-500 text-sm" title="保存"><i class="far fa-bookmark"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="content-card p-4">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-300 to-red-400 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="スター4" class="w-6 h-6">
-                                </div>
-                            </div>
-                            <div class="ml-3">
-                                <div class="flex items-center">
-                                    <h3 class="text-sm font-semibold">山田 一郎</h3>
-                                    <span class="membership-badge premium ml-2">プレミアム</span>
-                                </div>
-                                <p class="text-xs text-gray-500">昨日</p>
-                            </div>
-                        </div>
-                        <p class="text-sm mb-3">先日Amazonで買ったカメラ！動画撮影用に使ってます。</p>
-                        <div class="bg-gray-100 rounded-lg p-3 flex items-start">
-                            <div class="text-yellow-600 mr-3 text-lg"><i class="fab fa-amazon"></i></div>
-                            <div>
-                                <h4 class="text-sm font-semibold">Sony α7 III ミラーレス一眼カメラ</h4>
-                                <p class="text-xs text-gray-600">カメラ＆写真 - ¥198,000</p>
-                            </div>
-                        </div>
-                        <div class="mt-3 flex justify-between items-center">
-                            <div class="flex space-x-4">
-                                <button class="text-gray-500 text-sm" title="いいね"><i class="far fa-heart"></i> 215</button>
-                                <button class="text-gray-500 text-sm" title="コメント"><i class="far fa-comment"></i> 45</button>
-                            </div>
-                            <button class="text-gray-500 text-sm" title="保存"><i class="far fa-bookmark"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="content-card p-4">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-red-400 to-yellow-400 p-0.5">
-                                <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg" alt="スター3" class="w-6 h-6">
-                                </div>
-                            </div>
-                            <div class="ml-3">
-                                <div class="flex items-center">
-                                    <h3 class="text-sm font-semibold">鈴木 次郎</h3>
-                                    <span class="membership-badge light ml-2">ライト</span>
-                                </div>
-                                <p class="text-xs text-gray-500">2日前</p>
-                            </div>
-                        </div>
-                        <p class="text-sm mb-3">徹夜して一気見しちゃいました！超おすすめです！</p>
-                        <div class="bg-gray-100 rounded-lg p-3 flex items-start">
-                            <div class="text-red-600 mr-3 text-lg"><i class="fas fa-film"></i></div>
-                            <div>
-                                <h4 class="text-sm font-semibold">ストレンジャー・シングス シーズン4</h4>
-                                <p class="text-xs text-gray-600">Netflix - ドラマ</p>
-                            </div>
-                        </div>
-                        <div class="mt-3 flex justify-between items-center">
-                            <div class="flex space-x-4">
-                                <button class="text-gray-500 text-sm" title="いいね"><i class="far fa-heart"></i> 342</button>
-                                <button class="text-gray-500 text-sm" title="コメント"><i class="far fa-comment"></i> 67</button>
-                            </div>
-                            <button class="text-gray-500 text-sm" title="保存"><i class="far fa-bookmark"></i></button>
-                        </div>
-                    </div>
                 </div>
+
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800">歌手</h3>
+                     <div class="horizontal-scroll-container mb-4">
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-teal-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-microphone text-teal-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">歌手 男性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">シンガー</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-lime-400 to-emerald-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-guitar text-lime-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">歌手 男性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">バンドボーカル</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        </div>
+                     <div class="horizontal-scroll-container">
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-microphone-alt text-rose-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">歌手 女性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">アイドル</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-fuchsia-400 to-pink-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fas fa-music text-fuchsia-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">歌手 女性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">シンガー</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800">YouTuber</h3>
+                    <div class="horizontal-scroll-container mb-4">
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-youtube text-red-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">YouTuber 男性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">ゲーム実況</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-youtube text-red-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">YouTuber 男性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">ガジェット紹介</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        </div>
+                    <div class="horizontal-scroll-container">
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-youtube text-red-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">YouTuber 女性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">美容・メイク</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-500 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-youtube text-red-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">YouTuber 女性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">ファッション</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        </div>
+                </div>
+
+                 <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800">Instagrammer</h3>
+                    <div class="horizontal-scroll-container mb-4">
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-instagram text-pink-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">Insta 男性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">風景写真</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-instagram text-pink-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">Insta 男性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">ファッション</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        </div>
+                    <div class="horizontal-scroll-container">
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-instagram text-pink-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">Insta 女性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">ファッション</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-instagram text-pink-500 text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">Insta 女性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">美容・コスメ</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        </div>
+                </div>
+
+                 <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800">TikToker</h3>
+                    <div class="horizontal-scroll-container mb-4">
+                         <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-black via-red-500 to-cyan-400 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-tiktok text-black text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">TikTok 男性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">ダンス</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                         <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-black via-red-500 to-cyan-400 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-tiktok text-black text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">TikTok 男性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">コメディ</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                         </div>
+                    <div class="horizontal-scroll-container">
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-black via-red-500 to-cyan-400 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-tiktok text-black text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">TikTok 女性 A</h4> <p class="text-xs text-gray-500 mb-3 text-center">ダンス</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        <div class="content-card p-4 flex flex-col items-center w-36 flex-shrink-0"> <div class="w-20 h-20 rounded-full bg-gradient-to-br from-black via-red-500 to-cyan-400 p-1 mb-3 flex items-center justify-center shadow-md"> <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden"> <i class="fab fa-tiktok text-black text-3xl"></i> </div> </div> <h4 class="text-sm font-semibold text-center truncate w-full mb-1">TikTok 女性 B</h4> <p class="text-xs text-gray-500 mb-3 text-center">ファッション</p> <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 ease-in-out">フォロー</button> </div>
+                        </div>
+                </div>
+
             </section>
 
             <section id="mylist-view" class="mb-8 hidden">
@@ -574,692 +539,525 @@
                     <div class="content-card p-4">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="text-base font-semibold">保存したアイテム</h3>
-                            <button class="text-sm text-blue-500">すべて見る</button>
+                            <button class="text-sm text-blue-600 hover:underline">すべて見る</button>
                         </div>
                         <div class="space-y-3">
                             <div class="flex items-center">
-                                <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-3">
+                                <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-4 flex-shrink-0">
                                     <i class="fab fa-youtube text-red-600 text-2xl"></i>
                                 </div>
-                                <div>
-                                    <h4 class="text-sm font-semibold">プログラミングチュートリアル 2023</h4>
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="text-sm font-semibold truncate">プログラミングチュートリアル 2025</h4>
                                     <p class="text-xs text-gray-600">Tech Channel - 42:15</p>
+                                    <p class="text-xs text-gray-400 mt-1">保存日: 2025/04/19</p>
                                 </div>
+                                <button class="ml-4 text-gray-400 hover:text-red-500" title="リストから削除"><i class="fas fa-trash-alt"></i></button>
                             </div>
-                            <div class="flex items-center">
-                                <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-3">
+                             <div class="flex items-center">
+                                <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-4 flex-shrink-0">
                                     <i class="fab fa-spotify text-green-600 text-2xl"></i>
                                 </div>
-                                <div>
-                                    <h4 class="text-sm font-semibold">夏のドライブプレイリスト</h4>
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="text-sm font-semibold truncate">夏のドライブプレイリスト</h4>
                                     <p class="text-xs text-gray-600">Summer Vibes - プレイリスト</p>
+                                     <p class="text-xs text-gray-400 mt-1">保存日: 2025/04/18</p>
                                 </div>
+                                 <button class="ml-4 text-gray-400 hover:text-red-500" title="リストから削除"><i class="fas fa-trash-alt"></i></button>
                             </div>
-                            <div class="flex items-center">
-                                <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-3">
+                             <div class="flex items-center">
+                                <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-4 flex-shrink-0">
                                     <i class="fab fa-amazon text-yellow-600 text-2xl"></i>
                                 </div>
-                                <div>
-                                    <h4 class="text-sm font-semibold">ノイズキャンセリングヘッドホン</h4>
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="text-sm font-semibold truncate">ノイズキャンセリングヘッドホン XYZ</h4>
                                     <p class="text-xs text-gray-600">オーディオ機器 - ¥32,800</p>
+                                     <p class="text-xs text-gray-400 mt-1">保存日: 2025/04/15</p>
                                 </div>
+                                 <button class="ml-4 text-gray-400 hover:text-red-500" title="リストから削除"><i class="fas fa-trash-alt"></i></button>
                             </div>
-                        </div>
+                             </div>
                     </div>
                 </div>
             </section>
 
-             <section id="ranking-view" class="mb-8 hidden">
-                 <h2 class="text-xl font-bold mb-4">人気のスター</h2> <div class="space-y-3">
+            <section id="ranking-view" class="mb-8 hidden">
+                 <h2 class="text-xl font-bold mb-4">人気のスター</h2>
+                 <div class="space-y-3">
                      <div class="content-card p-3 flex items-center">
-                         <span class="text-lg font-bold w-8 text-center text-yellow-500">1</span>
-                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 p-0.5 ml-2">
-                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="スター1" class="w-8 h-8">
+                         <span class="text-2xl font-bold w-10 text-center text-yellow-500 mr-2">1</span>
+                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 p-0.5 flex-shrink-0">
+                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                 <img src="https://placehold.co/44x44/C7D2FE/4338CA?text=T" alt="スター1" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/44x44/cccccc/ffffff?text=Error'">
                              </div>
                          </div>
-                         <div class="ml-3">
-                             <h4 class="text-sm font-semibold">田中 太郎</h4>
+                         <div class="ml-3 flex-grow min-w-0">
+                             <h4 class="text-sm font-semibold truncate">田中 太郎</h4>
                              <p class="text-xs text-gray-500">24.5万フォロワー</p>
                          </div>
-                         <button class="ml-auto bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button>
-                     </div>
-                      <div class="content-card p-3 flex items-center">
-                         <span class="text-lg font-bold w-8 text-center text-gray-400">2</span>
-                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-blue-400 p-0.5 ml-2">
-                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/twitter/twitter-original.svg" alt="スター2" class="w-8 h-8">
-                             </div>
-                         </div>
-                         <div class="ml-3">
-                             <h4 class="text-sm font-semibold">佐藤 花子</h4>
-                             <p class="text-xs text-gray-500">18.3万フォロワー</p>
-                         </div>
-                         <button class="ml-auto bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs">フォロー中</button>
+                         <button class="ml-3 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs flex-shrink-0">フォロー</button>
                      </div>
                      <div class="content-card p-3 flex items-center">
-                         <span class="text-lg font-bold w-8 text-center text-orange-400">3</span>
-                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-red-400 to-yellow-400 p-0.5 ml-2">
-                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg" alt="スター3" class="w-8 h-8">
+                         <span class="text-xl font-bold w-10 text-center text-gray-400 mr-2">2</span>
+                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-blue-400 p-0.5 flex-shrink-0">
+                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                 <img src="https://placehold.co/44x44/A7F3D0/047857?text=S" alt="スター2" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/44x44/cccccc/ffffff?text=Error'">
                              </div>
                          </div>
-                         <div class="ml-3">
-                             <h4 class="text-sm font-semibold">鈴木 次郎</h4>
+                         <div class="ml-3 flex-grow min-w-0">
+                             <h4 class="text-sm font-semibold truncate">佐藤 花子</h4>
+                             <p class="text-xs text-gray-500">18.3万フォロワー</p>
+                         </div>
+                         <button class="ml-3 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-xs flex-shrink-0">フォロー中</button>
+                     </div>
+                     <div class="content-card p-3 flex items-center">
+                         <span class="text-lg font-bold w-10 text-center text-orange-500 mr-2">3</span>
+                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-red-400 to-yellow-400 p-0.5 flex-shrink-0">
+                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                 <img src="https://placehold.co/44x44/FEE2E2/DC2626?text=SZ" alt="スター3" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/44x44/cccccc/ffffff?text=Error'">
+                             </div>
+                         </div>
+                         <div class="ml-3 flex-grow min-w-0">
+                             <h4 class="text-sm font-semibold truncate">鈴木 次郎</h4>
                              <p class="text-xs text-gray-500">9.7万フォロワー</p>
                          </div>
-                          <button class="ml-auto bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button>
+                          <button class="ml-3 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs flex-shrink-0">フォロー</button>
                      </div>
+                     <div class="content-card p-3 flex items-center">
+                         <span class="text-base font-bold w-10 text-center text-gray-500 mr-2">4</span>
+                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-yellow-300 to-red-400 p-0.5 flex-shrink-0">
+                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                 <img src="https://placehold.co/44x44/FEF3C7/D97706?text=Y" alt="スター4" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/44x44/cccccc/ffffff?text=Error'">
+                             </div>
+                         </div>
+                         <div class="ml-3 flex-grow min-w-0">
+                             <h4 class="text-sm font-semibold truncate">山田 一郎</h4>
+                             <p class="text-xs text-gray-500">8.2万フォロワー</p>
+                         </div>
+                          <button class="ml-3 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-xs flex-shrink-0">フォロー中</button>
                      </div>
+                 </div>
             </section>
 
             <section id="search-view" class="mb-8 hidden">
                 <h2 class="text-xl font-bold mb-4">検索</h2>
-                <div class="mb-4 sticky top-24 z-10"> <div class="bg-white rounded-lg flex items-center p-2 shadow">
-                        <i class="fas fa-search text-gray-400 mr-2"></i>
-                        <input type="text" placeholder="スター、コンテンツ、タグを検索" class="bg-transparent w-full outline-none text-sm">
+                <div class="mb-4 sticky top-[calc(60px)] z-20 bg-gray-100 -mx-4 px-4 py-2 shadow-sm"> <div class="relative">
+                        <input type="search" placeholder="スター、コンテンツ、タグを検索" class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm appearance-none">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
                 </div>
-                 <div class="flex space-x-4 mb-4 border-b">
-                     <button class="py-2 px-1 text-sm font-semibold text-blue-500 border-b-2 border-blue-500">すべて</button>
-                     <button class="py-2 px-1 text-sm text-gray-500">スター</button>
-                     <button class="py-2 px-1 text-sm text-gray-500">コンテンツ</button>
-                     <button class="py-2 px-1 text-sm text-gray-500">タグ</button>
+                <div class="flex space-x-4 mb-4 border-b overflow-x-auto whitespace-nowrap pb-px">
+                     <button class="py-2 px-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 flex-shrink-0">すべて</button>
+                     <button class="py-2 px-2 text-sm text-gray-500 hover:text-gray-700 flex-shrink-0">スター</button>
+                     <button class="py-2 px-2 text-sm text-gray-500 hover:text-gray-700 flex-shrink-0">コンテンツ</button>
+                     <button class="py-2 px-2 text-sm text-gray-500 hover:text-gray-700 flex-shrink-0">タグ</button>
+                     <button class="py-2 px-2 text-sm text-gray-500 hover:text-gray-700 flex-shrink-0">YouTube</button>
+                     <button class="py-2 px-2 text-sm text-gray-500 hover:text-gray-700 flex-shrink-0">Spotify</button>
+                     <button class="py-2 px-2 text-sm text-gray-500 hover:text-gray-700 flex-shrink-0">Amazon</button>
                  </div>
 
                 <div class="space-y-4">
                      <p class="text-gray-500 text-sm">検索結果の例:</p>
                      <div class="content-card p-3 flex items-center">
-                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 p-0.5">
-                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="スター1" class="w-8 h-8">
+                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 p-0.5 flex-shrink-0">
+                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                 <img src="https://placehold.co/44x44/C7D2FE/4338CA?text=T" alt="スター1" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/44x44/cccccc/ffffff?text=Error'">
                              </div>
                          </div>
-                         <div class="ml-3">
-                             <h4 class="text-sm font-semibold">田中 太郎</h4>
-                             <p class="text-xs text-gray-500">24.5万フォロワー</p>
+                         <div class="ml-3 flex-grow min-w-0">
+                             <h4 class="text-sm font-semibold truncate">田中 太郎</h4>
+                             <p class="text-xs text-gray-500">スター・24.5万フォロワー</p>
                          </div>
-                         <button class="ml-auto bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button>
+                         <button class="ml-3 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs flex-shrink-0">フォロー</button>
                      </div>
-                      <div class="content-card p-4">
-                         <p class="text-sm mb-2"><strong class="font-semibold">佐藤 花子</strong>さんが投稿しました</p>
+                     <div class="content-card p-4">
+                         <p class="text-xs text-gray-500 mb-1">
+                             <img src="https://placehold.co/16x16/A7F3D0/047857?text=S" alt="スター2" class="w-4 h-4 rounded-full inline-block mr-1" onerror="this.src='https://placehold.co/16x16/cccccc/ffffff?text=Error'">
+                             <strong class="font-semibold">佐藤 花子</strong>さんが投稿
+                         </p>
                          <div class="bg-gray-100 rounded-lg p-3 flex items-start">
-                             <div class="text-green-600 mr-3 text-lg"><i class="fab fa-spotify"></i></div>
-                             <div>
-                                 <h4 class="text-sm font-semibold">Lo-Fi Study Beats</h4>
-                                 <p class="text-xs text-gray-600">ChillHop Music - アルバム</p>
+                             <div class="text-green-600 mr-3 text-lg flex-shrink-0 mt-1"><i class="fab fa-spotify"></i></div>
+                             <div class="min-w-0">
+                                 <h4 class="text-sm font-semibold leading-tight truncate">Lo-Fi Study Beats</h4>
+                                 <p class="text-xs text-gray-600 truncate">ChillHop Music - アルバム</p>
                              </div>
                          </div>
+                         <p class="text-xs text-gray-400 mt-2">4時間前</p>
                      </div>
                      <div class="content-card p-3">
-                          <span class="text-blue-500 font-semibold text-sm">#アニメレビュー</span>
-                          <p class="text-xs text-gray-500">1,284件の投稿</p>
+                          <span class="text-blue-600 font-semibold text-sm hover:underline cursor-pointer">#アニメレビュー</span>
+                          <p class="text-xs text-gray-500 mt-1">1,284件の投稿</p>
                       </div>
-                </div>
+                      </div>
             </section>
 
             <section id="follow-view" class="mb-8 hidden">
                  <h2 class="text-xl font-bold mb-4">フォロー中</h2>
                  <div class="space-y-3">
                      <div class="content-card p-3 flex items-center">
-                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-blue-400 p-0.5">
-                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/twitter/twitter-original.svg" alt="スター2" class="w-8 h-8">
+                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-blue-400 p-0.5 flex-shrink-0">
+                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                 <img src="https://placehold.co/44x44/A7F3D0/047857?text=S" alt="スター2" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/44x44/cccccc/ffffff?text=Error'">
                              </div>
                          </div>
-                         <div class="ml-3">
-                             <h4 class="text-sm font-semibold">佐藤 花子</h4>
+                         <div class="ml-3 flex-grow min-w-0">
+                             <h4 class="text-sm font-semibold truncate">佐藤 花子</h4>
                              <p class="text-xs text-gray-500">18.3万フォロワー</p>
                          </div>
-                         <button class="ml-auto bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs">フォロー中</button>
+                         <button class="ml-3 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-xs flex-shrink-0">フォロー中</button>
                      </div>
                      <div class="content-card p-3 flex items-center">
-                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-yellow-300 to-red-400 p-0.5">
-                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="スター4" class="w-8 h-8">
+                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-yellow-300 to-red-400 p-0.5 flex-shrink-0">
+                             <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                 <img src="https://placehold.co/44x44/FEF3C7/D97706?text=Y" alt="スター4" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/44x44/cccccc/ffffff?text=Error'">
                              </div>
                          </div>
-                         <div class="ml-3">
-                             <h4 class="text-sm font-semibold">山田 一郎</h4>
+                         <div class="ml-3 flex-grow min-w-0">
+                             <h4 class="text-sm font-semibold truncate">山田 一郎</h4>
                              <p class="text-xs text-gray-500">8.2万フォロワー</p>
                          </div>
-                         <button class="ml-auto bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs">フォロー中</button>
+                         <button class="ml-3 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-xs flex-shrink-0">フォロー中</button>
                      </div>
-                      </div>
+                     </div>
             </section>
 
             <section id="category-view" class="mb-8 hidden">
                 <h2 class="text-xl font-bold mb-4">カテゴリーから探す</h2>
-                <div class="mb-4">
-                    <div class="bg-gray-200 rounded-lg flex items-center p-2">
-                        <i class="fas fa-search text-gray-500 mr-2"></i>
-                        <input type="text" placeholder="カテゴリーを検索" class="bg-transparent w-full outline-none text-sm">
-                    </div>
+                <div class="mb-6 relative">
+                     <input type="search" placeholder="カテゴリーを検索..." class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm appearance-none">
+                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="content-card p-4 bg-gradient-to-r from-purple-400 to-indigo-500 text-white">
-                        <i class="fas fa-music text-2xl mb-2"></i>
-                        <h3 class="font-bold">音楽</h3>
-                        <p class="text-xs opacity-80">246人のスター</p>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="content-card p-4 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+                        <i class="fas fa-music text-3xl mb-2 opacity-80"></i>
+                        <h3 class="font-bold text-base">音楽</h3>
+                        <p class="text-xs opacity-70">246人のスター</p>
                     </div>
-                    <div class="content-card p-4 bg-gradient-to-r from-blue-400 to-cyan-500 text-white">
-                        <i class="fas fa-film text-2xl mb-2"></i>
-                        <h3 class="font-bold">映画・ドラマ</h3>
-                        <p class="text-xs opacity-80">189人のスター</p>
+                     <div class="content-card p-4 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+                        <i class="fas fa-film text-3xl mb-2 opacity-80"></i>
+                        <h3 class="font-bold text-base">映画・ドラマ</h3>
+                        <p class="text-xs opacity-70">189人のスター</p>
                     </div>
-                    <div class="content-card p-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white">
-                        <i class="fas fa-utensils text-2xl mb-2"></i>
-                        <h3 class="font-bold">料理・グルメ</h3>
-                        <p class="text-xs opacity-80">134人のスター</p>
+                     <div class="content-card p-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+                        <i class="fas fa-utensils text-3xl mb-2 opacity-80"></i>
+                        <h3 class="font-bold text-base">料理・グルメ</h3>
+                        <p class="text-xs opacity-70">134人のスター</p>
                     </div>
-                    <div class="content-card p-4 bg-gradient-to-r from-red-400 to-pink-500 text-white">
-                        <i class="fas fa-gamepad text-2xl mb-2"></i>
-                        <h3 class="font-bold">ゲーム</h3>
-                        <p class="text-xs opacity-80">211人のスター</p>
+                     <div class="content-card p-4 bg-gradient-to-br from-red-500 to-pink-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+                        <i class="fas fa-gamepad text-3xl mb-2 opacity-80"></i>
+                        <h3 class="font-bold text-base">ゲーム</h3>
+                        <p class="text-xs opacity-70">211人のスター</p>
                     </div>
-                    <div class="content-card p-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-white">
-                        <i class="fas fa-book text-2xl mb-2"></i>
-                        <h3 class="font-bold">書籍・マンガ</h3>
-                        <p class="text-xs opacity-80">97人のスター</p>
+                     <div class="content-card p-4 bg-gradient-to-br from-yellow-500 to-amber-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+                        <i class="fas fa-book text-3xl mb-2 opacity-80"></i>
+                        <h3 class="font-bold text-base">書籍・マンガ</h3>
+                        <p class="text-xs opacity-70">97人のスター</p>
                     </div>
-                    <div class="content-card p-4 bg-gradient-to-r from-orange-400 to-red-500 text-white">
-                        <i class="fas fa-shopping-bag text-2xl mb-2"></i>
-                        <h3 class="font-bold">ファッション</h3>
-                        <p class="text-xs opacity-80">178人のスター</p>
+                     <div class="content-card p-4 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+                        <i class="fas fa-shopping-bag text-3xl mb-2 opacity-80"></i>
+                        <h3 class="font-bold text-base">ファッション</h3>
+                        <p class="text-xs opacity-70">178人のスター</p>
                     </div>
-                    <div class="content-card p-4 bg-gradient-to-r from-teal-400 to-green-500 text-white">
-                        <i class="fas fa-plane text-2xl mb-2"></i>
-                        <h3 class="font-bold">旅行</h3>
-                        <p class="text-xs opacity-80">126人のスター</p>
                     </div>
-                    <div class="content-card p-4 bg-gradient-to-r from-purple-400 to-pink-500 text-white">
-                        <i class="fas fa-laptop text-2xl mb-2"></i>
-                        <h3 class="font-bold">テクノロジー</h3>
-                        <p class="text-xs opacity-80">165人のスター</p>
-                    </div>
-                </div>
 
                 <h3 class="text-lg font-bold mb-3">おすすめカテゴリー</h3>
                 <div class="content-card p-4 mb-4">
                     <div class="flex items-center mb-3">
-                        <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-red-400 to-pink-500 text-white flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-red-400 to-pink-500 text-white flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-headphones text-2xl"></i>
                         </div>
-                        <div class="ml-3">
-                            <h4 class="font-semibold">音楽プロデューサー</h4>
+                        <div class="ml-3 flex-grow min-w-0">
+                            <h4 class="font-semibold truncate">音楽プロデューサー</h4>
                             <p class="text-xs text-gray-500">68人のスター</p>
                         </div>
-                        <button class="ml-auto bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs">フォロー</button>
+                        <button class="ml-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs flex-shrink-0">フォロー</button>
                     </div>
-                    <div class="grid grid-cols-4 gap-2">
-                        <div class="w-full h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" alt="スター" class="w-8 h-8">
-                        </div>
-                        <div class="w-full h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spotify/spotify-original.svg" alt="スター" class="w-8 h-8">
-                        </div>
-                        <div class="w-full h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/youtube/youtube-original.svg" alt="スター" class="w-8 h-8">
-                        </div>
-                        <div class="w-full h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg" alt="スター" class="w-8 h-8">
-                        </div>
+                    <div class="flex space-x-2 overflow-hidden">
+                        <img src="https://placehold.co/32x32/FBCFE8/DB2777?text=P1" alt="スター" class="w-8 h-8 rounded-full border-2 border-white" onerror="this.src='https://placehold.co/32x32/cccccc/ffffff?text=Error'">
+                        <img src="https://placehold.co/32x32/C7D2FE/4338CA?text=P2" alt="スター" class="w-8 h-8 rounded-full border-2 border-white -ml-2" onerror="this.src='https://placehold.co/32x32/cccccc/ffffff?text=Error'">
+                        <img src="https://placehold.co/32x32/A7F3D0/047857?text=P3" alt="スター" class="w-8 h-8 rounded-full border-2 border-white -ml-2" onerror="this.src='https://placehold.co/32x32/cccccc/ffffff?text=Error'">
+                        <img src="https://placehold.co/32x32/FEF3C7/D97706?text=P4" alt="スター" class="w-8 h-8 rounded-full border-2 border-white -ml-2" onerror="this.src='https://placehold.co/32x32/cccccc/ffffff?text=Error'">
+                         <div class="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xs text-gray-500 -ml-2">+64</div>
                     </div>
                 </div>
-
-                <h2 class="text-lg font-bold mb-3 mt-8">ジャンル別おすすめスター</h2>
-
-                <div class="mb-6">
-                    <h3 class="text-md font-semibold mb-2 text-gray-700">俳優</h3>
-                    <div class="grid grid-cols-1 gap-y-2"> 
-                        <div class="horizontal-scroll-container"> 
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-male text-blue-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">俳優 男性 A</h4> 
-                                <p class="text-xs text-gray-500 mb-2">実力派</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-user-tie text-indigo-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">俳優 男性 B</h4> 
-                                <p class="text-xs text-gray-500 mb-2">若手注目株</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-theater-masks text-purple-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">俳優 男性 C</h4> 
-                                <p class="text-xs text-gray-500 mb-2">舞台俳優</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-indigo-400 to-cyan-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-film text-cyan-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">俳優 男性 D</h4> 
-                                <p class="text-xs text-gray-500 mb-2">映画中心</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                        </div>
-                        <div class="horizontal-scroll-container">
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-female text-pink-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">女優 女性 A</h4> 
-                                <p class="text-xs text-gray-500 mb-2">映画主演</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-user-tag text-purple-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">女優 女性 B</h4> 
-                                <p class="text-xs text-gray-500 mb-2">モデル兼</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-rose-400 to-pink-600 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-star text-yellow-400 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">女優 女性 C</h4> 
-                                <p class="text-xs text-gray-500 mb-2">ドラマ中心</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-microphone-alt text-red-400 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">女優 女性 D</h4> 
-                                <p class="text-xs text-gray-500 mb-2">声優</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <h3 class="text-md font-semibold mb-2 text-gray-700">歌手</h3>
-                    <div class="grid grid-cols-1 gap-y-2"> 
-                        <div class="horizontal-scroll-container"> 
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-male text-blue-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">歌手 男性 A</h4> 
-                                <p class="text-xs text-gray-500 mb-2">実力派</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-user-tie text-indigo-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">歌手 男性 B</h4> 
-                                <p class="text-xs text-gray-500 mb-2">若手注目株</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-theater-masks text-purple-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">歌手 男性 C</h4> 
-                                <p class="text-xs text-gray-500 mb-2">舞台歌手</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-indigo-400 to-cyan-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-film text-cyan-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">歌手 男性 D</h4> 
-                                <p class="text-xs text-gray-500 mb-2">ジャンル横断</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                        </div>
-                        <div class="horizontal-scroll-container">
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-female text-pink-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">歌手 女性 A</h4> 
-                                <p class="text-xs text-gray-500 mb-2">ポップス</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-user-tag text-purple-500 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">歌手 女性 B</h4> 
-                                <p class="text-xs text-gray-500 mb-2">ロック</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-rose-400 to-pink-600 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-star text-yellow-400 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">歌手 女性 C</h4> 
-                                <p class="text-xs text-gray-500 mb-2">ジャズ</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                            <div class="content-card p-3 flex flex-col items-center w-32 flex-shrink-0"> 
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 p-0.5 mb-2 flex items-center justify-center"> 
-                                    <div class="bg-white w-full h-full rounded-full flex items-center justify-center"> 
-                                        <i class="fas fa-microphone-alt text-red-400 text-2xl"></i> 
-                                    </div> 
-                                </div> 
-                                <h4 class="text-sm font-semibold text-center truncate w-full">歌手 女性 D</h4> 
-                                <p class="text-xs text-gray-500 mb-2">ポップス</p> 
-                                <button class="w-full bg-blue-500 text-white px-3 py-1 rounded-full text-xs">フォロー</button> 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                 </section>
 
             <section id="ocr-view" class="mb-8 hidden">
                 <h2 class="text-xl font-bold mb-4">コンテンツ取り込み</h2>
-                <div class="content-card p-6 text-center mb-4">
-                    <i class="fas fa-camera text-4xl text-blue-500 mb-3"></i>
-                    <h3 class="text-base font-semibold mb-2">カメラで撮影する</h3>
-                    <p class="text-sm text-gray-600 mb-4">レシートや商品を撮影して、スターリストに簡単に追加できます。</p>
-                    <button class="bg-blue-500 text-white rounded-lg py-3 px-6 w-full md:w-auto">
-                        <span>撮影を開始</span>
+                <div class="content-card p-6 text-center mb-4 hover:shadow-lg transition-shadow duration-200">
+                    <i class="fas fa-camera text-5xl text-blue-500 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">カメラで撮影する</h3>
+                    <p class="text-sm text-gray-600 mb-5">レシートや商品を撮影して、スターリストに簡単に追加できます。</p>
+                    <button class="bg-blue-500 hover:bg-blue-600 transition-colors duration-200 text-white rounded-lg py-3 px-6 w-full md:w-auto font-medium">
+                        <i class="fas fa-camera mr-2"></i><span>撮影を開始</span>
                     </button>
                 </div>
-                <div class="content-card p-6 text-center">
-                     <i class="fas fa-image text-4xl text-green-500 mb-3"></i>
-                    <h3 class="text-base font-semibold mb-2">ギャラリーから選択</h3>
-                    <p class="text-sm text-gray-600 mb-4">保存済みの画像を選んで、スターリストに追加します。</p>
-                    <button class="bg-gray-200 text-gray-700 rounded-lg py-3 px-6 w-full md:w-auto">
-                        <span>画像を選択</span>
+                <div class="content-card p-6 text-center hover:shadow-lg transition-shadow duration-200">
+                     <i class="fas fa-image text-5xl text-green-500 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">ギャラリーから選択</h3>
+                    <p class="text-sm text-gray-600 mb-5">保存済みの画像を選んで、スターリストに追加します。</p>
+                    <button class="bg-gray-200 hover:bg-gray-300 transition-colors duration-200 text-gray-700 rounded-lg py-3 px-6 w-full md:w-auto font-medium">
+                        <i class="fas fa-image mr-2"></i><span>画像を選択</span>
                     </button>
                 </div>
             </section>
 
-             <section id="star-dashboard-view" class="mb-8 hidden">
+            <section id="star-dashboard-view" class="mb-8 hidden">
                  <h2 class="text-xl font-bold mb-4">スターダッシュボード</h2>
                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                     <div class="content-card p-4">
+                     <div class="content-card p-5">
                          <div class="flex items-center text-gray-500 mb-2">
-                             <i class="fas fa-users mr-2"></i>
+                             <i class="fas fa-users mr-2 text-lg text-blue-500"></i>
                              <span class="text-sm font-semibold">総フォロワー</span>
                          </div>
                          <p class="text-3xl font-bold">845</p>
-                         <p class="text-xs text-green-500 mt-1"><i class="fas fa-arrow-up mr-1"></i>12 (今週)</p>
+                         <p class="text-xs text-green-600 mt-1 flex items-center"><i class="fas fa-arrow-up mr-1"></i>12 (今週)</p>
                      </div>
-                     <div class="content-card p-4">
+                     <div class="content-card p-5">
                          <div class="flex items-center text-gray-500 mb-2">
-                             <i class="fas fa-heart mr-2"></i>
+                             <i class="fas fa-heart mr-2 text-lg text-red-500"></i>
                              <span class="text-sm font-semibold">月間エンゲージメント率</span>
                          </div>
                          <p class="text-3xl font-bold">15.2<span class="text-lg">%</span></p>
-                         <p class="text-xs text-red-500 mt-1"><i class="fas fa-arrow-down mr-1"></i>-0.5% (先月比)</p>
+                         <p class="text-xs text-red-600 mt-1 flex items-center"><i class="fas fa-arrow-down mr-1"></i>-0.5% (先月比)</p>
                      </div>
-                      <div class="content-card p-4">
+                     <div class="content-card p-5">
                          <div class="flex items-center text-gray-500 mb-2">
-                             <i class="fas fa-yen-sign mr-2"></i>
+                             <i class="fas fa-yen-sign mr-2 text-lg text-green-500"></i>
                              <span class="text-sm font-semibold">推定月収</span>
                          </div>
-                         <p class="text-3xl font-bold">¥125,800</p>
-                         <p class="text-xs text-green-500 mt-1"><i class="fas fa-arrow-up mr-1"></i>+5% (先月比)</p>
+                         <p class="text-3xl font-bold">¥125,800</p> <p class="text-xs text-green-600 mt-1 flex items-center"><i class="fas fa-arrow-up mr-1"></i>+5% (先月比)</p>
                      </div>
 
-                     <div class="md:col-span-2 lg:col-span-3 content-card p-4">
-                          <h3 class="text-lg font-semibold mb-3">コンテンツパフォーマンス (過去30日間)</h3>
-                          <div class="chart-placeholder mb-4">
-                              <div class="bar-chart"> <div class="bar" style="height: 60%;" title="4週間前"></div>
+                     <div class="md:col-span-2 lg:col-span-3 content-card p-5">
+                          <h3 class="text-lg font-semibold mb-4">コンテンツパフォーマンス (過去30日間)</h3>
+                          <div class="chart-placeholder mb-4 h-48"> <div class="bar-chart h-full">
+                                  <div class="bar" style="height: 60%;" title="4週間前"></div>
                                   <div class="bar" style="height: 80%;" title="3週間前"></div>
                                   <div class="bar" style="height: 50%;" title="2週間前"></div>
                                   <div class="bar" style="height: 70%;" title="1週間前"></div>
-                                  <div class="bar bg-blue-500" style="height: 90%;" title="今週"></div> </div>
-                              <span class="absolute bottom-2 right-2 text-xs text-gray-400">エンゲージメント推移 (仮)</span>
+                                  <div class="bar bg-blue-500" style="height: 90%;" title="今週"></div>
+                              </div>
+                              <span class="absolute bottom-2 right-3 text-xs text-gray-400">エンゲージメント推移 (仮)</span>
                           </div>
                           <h4 class="font-semibold mb-2 text-sm">人気の投稿:</h4>
                           <div class="space-y-2">
-                              <div class="flex justify-between items-center text-sm border-b pb-1">
-                                  <span><i class="fab fa-amazon text-yellow-500 mr-1"></i> Sony α7 III 購入レビュー</span>
-                                  <span><i class="far fa-heart mr-1"></i>215 <i class="far fa-comment ml-2 mr-1"></i>45</span>
+                              <div class="flex justify-between items-center text-sm border-b pb-1.5 pt-1 hover:bg-gray-50 px-1 rounded">
+                                  <span class="truncate"><i class="fab fa-amazon text-yellow-500 mr-1.5"></i> Sony α7 III 購入レビュー</span>
+                                  <span class="text-gray-500 flex-shrink-0 ml-2"><i class="far fa-heart mr-1"></i>215 <i class="far fa-comment ml-2 mr-1"></i>45</span>
                               </div>
-                              <div class="flex justify-between items-center text-sm border-b pb-1">
-                                  <span><i class="fab fa-youtube text-red-500 mr-1"></i> アニメレビュー：鬼滅の刃</span>
-                                  <span><i class="far fa-heart mr-1"></i>128 <i class="far fa-comment ml-2 mr-1"></i>24</span>
+                              <div class="flex justify-between items-center text-sm border-b pb-1.5 pt-1 hover:bg-gray-50 px-1 rounded">
+                                  <span class="truncate"><i class="fab fa-youtube text-red-500 mr-1.5"></i> アニメレビュー：鬼滅の刃</span>
+                                  <span class="text-gray-500 flex-shrink-0 ml-2"><i class="far fa-heart mr-1"></i>128 <i class="far fa-comment ml-2 mr-1"></i>24</span>
                               </div>
-                              <div class="flex justify-between items-center text-sm">
-                                  <span><i class="fab fa-spotify text-green-500 mr-1"></i> Lo-Fi Study Beats 共有</span>
-                                   <span><i class="far fa-heart mr-1"></i>86 <i class="far fa-comment ml-2 mr-1"></i>12</span>
+                              <div class="flex justify-between items-center text-sm pt-1 hover:bg-gray-50 px-1 rounded">
+                                  <span class="truncate"><i class="fab fa-spotify text-green-500 mr-1.5"></i> Lo-Fi Study Beats 共有</span>
+                                   <span class="text-gray-500 flex-shrink-0 ml-2"><i class="far fa-heart mr-1"></i>86 <i class="far fa-comment ml-2 mr-1"></i>12</span>
                               </div>
                           </div>
                      </div>
 
-                     <div class="lg:col-span-1 content-card p-4">
-                         <h3 class="text-lg font-semibold mb-3">ファン分析</h3>
-                         <div class="chart-placeholder mb-4 flex flex-col items-center justify-center">
+                     <div class="lg:col-span-1 content-card p-5">
+                         <h3 class="text-lg font-semibold mb-4">ファン分析</h3>
+                         <div class="chart-placeholder mb-4 flex flex-col items-center justify-center h-36">
                               <i class="fas fa-chart-pie text-4xl text-gray-400 mb-2"></i>
-                              <span>ファン層グラフ (仮)</span>
+                              <span class="text-xs">ファン層グラフ (仮)</span>
                          </div>
                          <p class="text-sm mb-2"><strong class="font-semibold">主なファン層:</strong> 20代男性 (推定)</p>
                          <p class="text-sm"><strong class="font-semibold">エンゲージメントの高いファン:</strong> Fan123, SupporterX, ...</p>
                      </div>
 
-                     <div class="md:col-span-1 lg:col-span-2 content-card p-4">
-                          <h3 class="text-lg font-semibold mb-3">クイックアクション</h3>
+                     <div class="md:col-span-1 lg:col-span-2 content-card p-5">
+                          <h3 class="text-lg font-semibold mb-4">クイックアクション</h3>
                           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                               <button class="bg-blue-500 text-white rounded-lg py-3 text-sm flex items-center justify-center hover:bg-blue-600 transition"><i class="fas fa-plus mr-2"></i>新しい投稿を作成</button>
-                               <button class="bg-green-500 text-white rounded-lg py-3 text-sm flex items-center justify-center hover:bg-green-600 transition"><i class="fas fa-paper-plane mr-2"></i>ファンにメッセージ</button>
-                               <button class="bg-purple-500 text-white rounded-lg py-3 text-sm flex items-center justify-center hover:bg-purple-600 transition"><i class="fas fa-ad mr-2"></i>広告を管理</button>
-                               <button class="bg-yellow-500 text-white rounded-lg py-3 text-sm flex items-center justify-center hover:bg-yellow-600 transition"><i class="fas fa-link mr-2"></i>アフィリエイト設定</button>
+                               <button class="bg-blue-500 text-white rounded-lg py-3 text-sm flex items-center justify-center hover:bg-blue-600 transition duration-150 ease-in-out"><i class="fas fa-plus mr-2"></i>新しい投稿を作成</button>
+                               <button class="bg-green-500 text-white rounded-lg py-3 text-sm flex items-center justify-center hover:bg-green-600 transition duration-150 ease-in-out"><i class="fas fa-paper-plane mr-2"></i>ファンにメッセージ</button>
+                               <button class="bg-purple-500 text-white rounded-lg py-3 text-sm flex items-center justify-center hover:bg-purple-600 transition duration-150 ease-in-out"><i class="fas fa-ad mr-2"></i>広告を管理</button>
+                               <button class="bg-yellow-500 text-white rounded-lg py-3 text-sm flex items-center justify-center hover:bg-yellow-600 transition duration-150 ease-in-out"><i class="fas fa-link mr-2"></i>アフィリエイト設定</button>
                           </div>
                      </div>
                  </div>
             </section>
 
             <section id="profile-view" class="mb-8 hidden">
-                <div class="content-card p-4 mb-4">
+                <div class="content-card p-5 mb-6">
                     <div class="flex items-center mb-4">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 p-0.5">
-                            <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" alt="自分" class="w-12 h-12">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-1 flex-shrink-0 shadow-md">
+                            <div class="bg-white w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                                 <img src="https://placehold.co/72x72/FBCFE8/DB2777?text=User" alt="自分" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/72x72/cccccc/ffffff?text=Error'">
                             </div>
                         </div>
                         <div class="ml-4">
-                            <h2 class="text-lg font-bold">ユーザー名</h2>
-                            <p class="text-xs text-gray-500">@username</p>
-                            <p class="text-xs text-gray-500 mt-1">プレミアムメンバー</p>
+                            <h2 class="text-xl font-bold">ユーザー名</h2>
+                            <p class="text-sm text-gray-500">@username</p>
+                            <span class="membership-badge premium mt-1">プレミアム</span>
                         </div>
                     </div>
-                    <div class="flex justify-between text-center pb-4 border-b border-gray-200">
+                    <div class="flex justify-around text-center pb-4 border-b border-gray-200">
                         <div>
-                            <p class="font-bold">124</p>
+                            <p class="text-lg font-bold">124</p>
                             <p class="text-xs text-gray-500">フォロー中</p>
                         </div>
                         <div>
-                            <p class="font-bold">845</p>
+                            <p class="text-lg font-bold">845</p>
                             <p class="text-xs text-gray-500">フォロワー</p>
                         </div>
                         <div>
-                            <p class="font-bold">1,293</p>
+                            <p class="text-lg font-bold">1,293</p>
                             <p class="text-xs text-gray-500">投稿</p>
                         </div>
                     </div>
                     <div class="py-4">
-                        <p class="text-sm">趣味は音楽鑑賞と映画。最近はゲームも始めました。好きなブランドはAppleとナイキ。</p>
+                        <p class="text-sm leading-relaxed">趣味は音楽鑑賞と映画。最近はゲームも始めました。好きなブランドはAppleとナイキ。最新ガジェット情報もチェックしてます！</p>
                     </div>
-                    <button class="bg-gray-200 text-gray-700 rounded-lg py-2 w-full">プロフィールを編集</button>
+                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg py-2.5 w-full text-sm font-medium transition duration-150 ease-in-out">プロフィールを編集</button>
                 </div>
-                <div class="content-card p-4">
-                    <h3 class="text-lg font-bold mb-3">最近の投稿</h3>
-                    <div class="space-y-3">
+                <div class="content-card p-5">
+                    <h3 class="text-lg font-bold mb-4">最近の投稿</h3>
+                    <div class="space-y-4">
                         <div class="flex items-center border-b border-gray-100 pb-3">
-                            <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-3">
+                            <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-4 flex-shrink-0">
                                 <i class="fab fa-spotify text-green-600 text-2xl"></i>
                             </div>
-                            <div>
-                                <h4 class="text-sm font-semibold">通勤中に聴くプレイリスト</h4>
-                                <p class="text-xs text-gray-600">2日前に投稿</p>
+                            <div class="flex-grow min-w-0">
+                                <h4 class="text-sm font-semibold truncate">通勤中に聴くプレイリスト</h4>
+                                <p class="text-xs text-gray-500">2日前に投稿</p>
                             </div>
+                             <i class="fas fa-chevron-right text-gray-300 ml-2"></i>
                         </div>
                         <div class="flex items-center border-b border-gray-100 pb-3">
-                            <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-3">
+                            <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-4 flex-shrink-0">
                                 <i class="fab fa-youtube text-red-600 text-2xl"></i>
                             </div>
-                            <div>
-                                <h4 class="text-sm font-semibold">新しく見つけたYouTubeチャンネル</h4>
-                                <p class="text-xs text-gray-600">先週に投稿</p>
+                            <div class="flex-grow min-w-0">
+                                <h4 class="text-sm font-semibold truncate">新しく見つけたYouTubeチャンネル - VLOG系</h4>
+                                <p class="text-xs text-gray-500">先週に投稿</p>
                             </div>
+                             <i class="fas fa-chevron-right text-gray-300 ml-2"></i>
                         </div>
-                         <div class="flex items-center">
-                            <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-3">
+                        <div class="flex items-center">
+                            <div class="bg-gray-100 rounded-lg w-16 h-16 flex items-center justify-center mr-4 flex-shrink-0">
                                 <i class="fas fa-shopping-bag text-amber-600 text-2xl"></i>
                             </div>
-                            <div>
-                                <h4 class="text-sm font-semibold">購入したスニーカー</h4>
-                                <p class="text-xs text-gray-600">2週間前に投稿</p>
+                            <div class="flex-grow min-w-0">
+                                <h4 class="text-sm font-semibold truncate">購入したスニーカー (Nike Air Max)</h4>
+                                <p class="text-xs text-gray-500">2週間前に投稿</p>
                             </div>
+                             <i class="fas fa-chevron-right text-gray-300 ml-2"></i>
                         </div>
                     </div>
+                     <button class="mt-4 text-sm text-blue-600 hover:underline w-full text-center">すべての投稿を見る</button>
                 </div>
             </section>
 
             <section id="subscription-view" class="mb-8 hidden">
                 <h2 class="text-xl font-bold mb-4">会員制度</h2>
-                <div class="mb-4 content-card p-4">
-                    <div class="bg-gray-100 p-3 rounded-lg mb-4">
-                        <h3 class="font-semibold mb-1">現在のプラン</h3>
-                        <p class="text-sm text-gray-700">ライト会員（無料）</p>
+                <div class="mb-6 content-card p-5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg">
+                    <h3 class="font-semibold mb-1 text-lg">現在のプラン</h3>
+                    <p class="text-2xl font-bold mb-1">プレミアム会員</p>
+                    <p class="text-sm opacity-80 mb-3">すべての機能をご利用いただけます。</p>
+                    <p class="text-xs opacity-70">次回更新日: 2025年5月20日</p>
+                    <button class="mt-3 w-full bg-white text-indigo-600 rounded-lg py-2 text-sm font-medium hover:bg-gray-100 transition duration-150 ease-in-out">プランを管理</button>
+                </div>
+                <div class="space-y-5">
+                    <div class="content-card p-5 border border-gray-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-lg">ライト会員</h4>
+                            <span class="text-gray-700 font-bold text-lg">無料</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4">基本的な機能が利用できる無料プラン</p>
+                        <ul class="text-sm space-y-2.5 mb-4 text-gray-700">
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>基本的なアプリ機能</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>1日10件までの閲覧制限</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>コミュニティへの参加</span></li>
+                            <li class="flex items-center text-gray-400"><i class="fas fa-times mr-2.5"></i><span>広告非表示</span></li>
+                            <li class="flex items-center text-gray-400"><i class="fas fa-times mr-2.5"></i><span>プレミアムコンテンツ</span></li>
+                        </ul>
+                         <button class="bg-gray-100 text-gray-500 rounded-lg py-2.5 w-full text-sm font-medium cursor-not-allowed" disabled>現在のプラン</button>
                     </div>
-                    <div class="space-y-4">
-                        <div class="content-card p-4 bg-gradient-to-r from-gray-100 to-gray-200">
-                            <div class="flex justify-between items-center mb-2">
-                                <h4 class="font-bold">ライト会員</h4>
-                                <span class="text-gray-500 font-bold">無料</span>
-                            </div>
-                            <p class="text-sm text-gray-600 mb-3">基本的な機能が利用できる無料プラン</p>
-                            <ul class="text-sm space-y-2 mb-4">
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>基本的なアプリ機能</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>1日10件までの閲覧制限</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>コミュニティへの参加</span></li>
-                            </ul>
-                            <p class="text-xs text-gray-500">現在のプラン</p>
+                    <div class="content-card p-5 border-2 border-blue-500 relative">
+                         <span class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">おすすめ</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-lg text-blue-700">スタンダード会員</h4>
+                            <span class="text-gray-800 font-bold text-lg">¥580<span class="text-sm font-normal">/月</span></span>
                         </div>
-                        <div class="content-card p-4 bg-gradient-to-r from-blue-50 to-blue-100">
-                            <div class="flex justify-between items-center mb-2">
-                                <h4 class="font-bold">スタンダード会員</h4>
-                                <span class="text-gray-800 font-bold">¥580/月</span>
-                            </div>
-                            <p class="text-sm text-gray-600 mb-3">より多くの機能が利用できる有料プラン</p>
-                            <ul class="text-sm space-y-2 mb-4">
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>ライト会員の全機能</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>閲覧制限なし</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>広告非表示</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>プレミアムコンテンツの閲覧</span></li>
-                            </ul>
-                            <button class="bg-blue-500 text-white rounded-lg py-2 w-full">アップグレードする</button>
+                        <p class="text-sm text-gray-600 mb-4">より多くの機能が利用できる有料プラン</p>
+                        <ul class="text-sm space-y-2.5 mb-4 text-gray-700">
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>ライト会員の全機能</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>閲覧制限なし</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>広告非表示</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>プレミアムコンテンツの閲覧</span></li>
+                             <li class="flex items-center text-gray-400"><i class="fas fa-times mr-2.5"></i><span>先行コンテンツ</span></li>
+                        </ul>
+                        <button class="bg-blue-500 hover:bg-blue-600 transition-colors duration-200 text-white rounded-lg py-2.5 w-full text-sm font-medium">このプランに変更</button>
+                    </div>
+                    <div class="content-card p-5 border border-gray-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-lg text-purple-700">プレミアム会員</h4>
+                            <span class="text-gray-800 font-bold text-lg">¥980<span class="text-sm font-normal">/月</span></span>
                         </div>
-                        <div class="content-card p-4 bg-gradient-to-r from-purple-50 to-purple-100">
-                            <div class="flex justify-between items-center mb-2">
-                                <h4 class="font-bold">プレミアム会員</h4>
-                                <span class="text-gray-800 font-bold">¥980/月</span>
-                            </div>
-                            <p class="text-sm text-gray-600 mb-3">すべての機能が使える最上位プラン</p>
-                            <ul class="text-sm space-y-2 mb-4">
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>スタンダード会員の全機能</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>先行コンテンツの閲覧</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>スター限定イベントへの参加</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>プレミアムバッジの表示</span></li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i><span>優先サポート</span></li>
-                            </ul>
-                            <button class="bg-purple-500 text-white rounded-lg py-2 w-full">アップグレードする</button>
-                        </div>
+                        <p class="text-sm text-gray-600 mb-4">すべての機能が使える最上位プラン</p>
+                        <ul class="text-sm space-y-2.5 mb-4 text-gray-700">
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>スタンダード会員の全機能</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>先行コンテンツの閲覧</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>スター限定イベントへの参加</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>プレミアムバッジの表示</span></li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2.5"></i><span>優先サポート</span></li>
+                        </ul>
+                         <button class="bg-purple-500 hover:bg-purple-600 transition-colors duration-200 text-white rounded-lg py-2.5 w-full text-sm font-medium">このプランに変更</button>
                     </div>
                 </div>
             </section>
 
             <section id="settings-view" class="mb-8 hidden">
                 <h2 class="text-xl font-bold mb-4">設定</h2>
-                <div class="space-y-4">
-                    <div class="content-card">
+                <div class="space-y-5">
+                    <div class="content-card overflow-hidden">
                         <div class="p-4 border-b border-gray-100">
-                            <h3 class="text-base font-semibold mb-1">アカウント</h3>
-                            <p class="text-xs text-gray-500">アカウント情報の管理</p>
+                            <h3 class="text-base font-semibold">アカウント</h3>
                         </div>
                         <div class="divide-y divide-gray-100">
-                            <a href="#" class="block p-4 hover:bg-gray-50">
+                            <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-user text-gray-400 mr-3"></i><span class="text-sm">プロフィール編集</span></div>
-                                    <i class="fas fa-chevron-right text-gray-300"></i>
+                                    <div class="flex items-center"><i class="fas fa-user w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">プロフィール編集</span></div>
+                                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
                                 </div>
                             </a>
-                            <a href="#" class="block p-4 hover:bg-gray-50">
+                            <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-bell text-gray-400 mr-3"></i><span class="text-sm">通知設定</span></div>
-                                    <i class="fas fa-chevron-right text-gray-300"></i>
+                                    <div class="flex items-center"><i class="fas fa-shield-alt w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">アカウントセキュリティ</span></div>
+                                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
                                 </div>
                             </a>
-                            <a href="#" class="block p-4 hover:bg-gray-50">
+                            <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-lock text-gray-400 mr-3"></i><span class="text-sm">プライバシー設定</span></div>
-                                    <i class="fas fa-chevron-right text-gray-300"></i>
+                                    <div class="flex items-center"><i class="fas fa-link w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">連携サービス</span></div>
+                                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
                                 </div>
                             </a>
                         </div>
                     </div>
 
-                    <div class="content-card">
+                    <div class="content-card overflow-hidden">
                          <div class="p-4 border-b border-gray-100">
-                            <h3 class="text-base font-semibold mb-1">アプリ設定</h3>
-                            <p class="text-xs text-gray-500">アプリの設定と表示</p>
+                            <h3 class="text-base font-semibold">通知と表示</h3>
                         </div>
                         <div class="divide-y divide-gray-100">
-                            <a href="#" class="block p-4 hover:bg-gray-50">
+                            <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-palette text-gray-400 mr-3"></i><span class="text-sm">テーマ設定</span></div>
-                                    <i class="fas fa-chevron-right text-gray-300"></i>
+                                    <div class="flex items-center"><i class="fas fa-bell w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">通知設定</span></div>
+                                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
                                 </div>
                             </a>
-                            <a href="#" class="block p-4 hover:bg-gray-50">
+                            <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-language text-gray-400 mr-3"></i><span class="text-sm">言語設定</span></div>
-                                    <i class="fas fa-chevron-right text-gray-300"></i>
+                                    <div class="flex items-center"><i class="fas fa-language w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">言語設定</span></div>
+                                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
                                 </div>
                             </a>
                             <div class="p-4">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-moon text-gray-400 mr-3"></i><span class="text-sm">ダークモード</span></div>
+                                    <div class="flex items-center"><i class="fas fa-moon w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">ダークモード</span></div>
                                     <label class="switch">
                                         <input type="checkbox" title="ダークモードの切り替え" aria-label="ダークモードの切り替え">
                                         <span class="slider round"></span>
@@ -1269,91 +1067,89 @@
                         </div>
                     </div>
 
-                    <div class="content-card">
+                    <div class="content-card overflow-hidden">
                          <div class="p-4 border-b border-gray-100">
-                            <h3 class="text-base font-semibold mb-1">サポート</h3>
-                            <p class="text-xs text-gray-500">ヘルプとサポート</p>
+                            <h3 class="text-base font-semibold">サポート</h3>
                         </div>
                         <div class="divide-y divide-gray-100">
-                             <a href="#" class="block p-4 hover:bg-gray-50">
+                             <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-question-circle text-gray-400 mr-3"></i><span class="text-sm">ヘルプセンター</span></div>
-                                    <i class="fas fa-chevron-right text-gray-300"></i>
+                                    <div class="flex items-center"><i class="fas fa-question-circle w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">ヘルプセンター</span></div>
+                                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
                                 </div>
                             </a>
-                            <a href="#" class="block p-4 hover:bg-gray-50">
+                            <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-file-alt text-gray-400 mr-3"></i><span class="text-sm">利用規約</span></div>
-                                    <i class="fas fa-chevron-right text-gray-300"></i>
+                                    <div class="flex items-center"><i class="fas fa-file-alt w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">利用規約</span></div>
+                                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
                                 </div>
                             </a>
-                            <a href="#" class="block p-4 hover:bg-gray-50">
+                            <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center"><i class="fas fa-shield-alt text-gray-400 mr-3"></i><span class="text-sm">プライバシーポリシー</span></div>
-                                    <i class="fas fa-chevron-right text-gray-300"></i>
+                                    <div class="flex items-center"><i class="fas fa-user-shield w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">プライバシーポリシー</span></div>
+                                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                                </div>
+                            </a>
+                             <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center"><i class="fas fa-info-circle w-5 text-center text-gray-400 mr-3"></i><span class="text-sm">バージョン情報</span></div>
+                                    <span class="text-xs text-gray-400">1.0.0</span>
                                 </div>
                             </a>
                         </div>
                     </div>
 
-                    <div class="content-card p-4">
-                        <button class="w-full py-3 text-red-500 font-semibold">ログアウト</button>
+                    <div class="content-card overflow-hidden">
+                        <button class="w-full py-3 text-red-500 hover:bg-red-50 transition duration-150 ease-in-out font-medium text-sm">ログアウト</button>
                     </div>
                 </div>
             </section>
+
         </main>
 
-        <footer class="footer-nav fixed bottom-0 left-0 right-0 bg-white shadow-lg py-2 z-30 flex justify-around items-baseline">
-            <a href="#" class="footer-nav-item active" data-tab="feed-view">
-                <i class="fas fa-home"></i>
-                <span>ホーム</span>
-            </a>
-            <a href="#" class="footer-nav-item" data-tab="search-view">
-                <i class="fas fa-search"></i>
-                <span>検索</span>
-            </a>
-            <a href="#" class="footer-nav-item center-icon" data-tab="ocr-view" title="コンテンツ取り込み">
-                <i class="fas fa-plus-square"></i>
-                <span></span> </a>
-            <a href="#" class="footer-nav-item" data-tab="mylist-view">
-                <i class="fas fa-star"></i>
-                <span>マイリスト</span>
-            </a>
-            <a href="#" class="footer-nav-item" data-view="profile">
-                <i class="fas fa-user"></i>
-                <span>マイページ</span>
-            </a>
+        <footer class="footer-nav">
+            <a href="#" class="footer-nav-item active" data-tab="feed-view"> <i class="fas fa-home"></i> <span>ホーム</span> </a>
+            <a href="#" class="footer-nav-item" data-tab="search-view"> <i class="fas fa-search"></i> <span>検索</span> </a>
+            <a href="#" class="footer-nav-item" data-tab="ocr-view"> <i class="fas fa-camera"></i> <span>取込</span> </a>
+            <a href="#" class="footer-nav-item" data-tab="mylist-view"> <i class="fas fa-star"></i> <span>マイリスト</span> </a>
+            <a href="#" class="footer-nav-item" data-tab="profile-view"> <i class="fas fa-user"></i> <span>ﾌﾟﾛﾌｨｰﾙ</span> </a>
         </footer>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             try { // Add basic error handling
-                // --- Sidebar Controls ---
+
+                // --- Element Selectors ---
                 const sidebar = document.getElementById('sidebar');
                 const sidebarOverlay = document.getElementById('sidebar-overlay');
                 const openSidebarBtn = document.getElementById('open-sidebar');
                 const closeSidebarBtn = document.getElementById('close-sidebar');
+                const allTabButtons = document.querySelectorAll('[data-tab]'); // Selects all buttons with data-tab
+                const sections = document.querySelectorAll('main > section[id$="-view"]'); // Selects direct children sections in main
+                const headerTitle = document.querySelector('header h1'); // Select the header title element
 
-                // Add 'active' class on desktop load
-                if (window.innerWidth >= 768 && sidebar) { // Check if sidebar exists
-                    sidebar.classList.add('active');
-                }
+                // --- Sidebar Controls ---
+
+                // Desktop sidebar visibility is handled by CSS transform
+                // No need to add 'active' class on desktop load
 
                 function openSidebar() {
                     if (sidebar && sidebarOverlay) { // Check if elements exist
                         sidebar.classList.add('active');
                         sidebarOverlay.classList.add('active');
-                        document.body.style.overflow = 'hidden'; // Prevent background scroll
+                        // Prevent background scroll on mobile only when sidebar is open
+                        if (window.innerWidth < 768) {
+                             document.body.style.overflow = 'hidden';
+                        }
                     }
                 }
 
                 function closeSidebar() {
-                    // Only close sidebar fully on mobile
-                    if (window.innerWidth < 768 && sidebar && sidebarOverlay) { // Check if elements exist
+                     if (sidebar && sidebarOverlay) { // Check if elements exist
                         sidebar.classList.remove('active');
                         sidebarOverlay.classList.remove('active');
-                        document.body.style.overflow = ''; // Allow background scroll
+                        document.body.style.overflow = ''; // Allow background scroll again
                     }
                 }
 
@@ -1372,22 +1168,26 @@
                 window.addEventListener('resize', function() {
                     if (sidebar) { // Check if sidebar exists
                         if (window.innerWidth >= 768) {
-                            sidebar.classList.add('active'); // Ensure sidebar is visible on desktop
-                        } else if (sidebarOverlay && !sidebarOverlay.classList.contains('active')) {
-                            // If mobile and overlay is not active (meaning sidebar was closed), ensure sidebar is closed
-                            sidebar.classList.remove('active');
+                             // Ensure sidebar overlay is hidden and body scroll is enabled on desktop
+                             sidebarOverlay?.classList.remove('active');
+                             document.body.style.overflow = '';
+                             // Sidebar visibility is handled by CSS media query
+                        } else {
+                             // If mobile and sidebar is not active, ensure overlay is also not active
+                            if (!sidebar.classList.contains('active')) {
+                                 sidebarOverlay?.classList.remove('active');
+                            }
                         }
                     }
                 });
 
                 // --- Tab Switching Logic ---
-                const allTabButtons = document.querySelectorAll('[data-tab]'); // Selects both sidebar and footer buttons
-                const sections = document.querySelectorAll('main > section[id$="-view"]'); // Selects direct children sections in main
 
                 function showTab(tabId) {
                     if (!tabId) return; // Exit if tabId is invalid
 
-                    // Hide all sections
+                    let foundSection = false;
+                    // Hide all sections first
                     sections.forEach(section => {
                         if(section) section.classList.add('hidden');
                     });
@@ -1396,20 +1196,63 @@
                     const targetSection = document.getElementById(tabId);
                     if (targetSection) {
                         targetSection.classList.remove('hidden');
+                        foundSection = true;
                     } else {
-                        console.warn(`Target section with ID "${tabId}" not found.`);
+                         // If the target section doesn't exist, default to feed view
+                        console.warn(`Target section with ID "${tabId}" not found. Defaulting to feed-view.`);
+                        const feedSection = document.getElementById('feed-view');
+                        if (feedSection) {
+                             feedSection.classList.remove('hidden');
+                             tabId = 'feed-view'; // Correct the active tab ID for button state update
+                             foundSection = true;
+                        } else {
+                             console.error("Default section 'feed-view' not found either!");
+                             // Handle case where even feed-view is missing
+                             return; // Stop further processing
+                        }
                     }
+
+                     // Update header title based on the active tab
+                     if (headerTitle && foundSection) {
+                         // Find the button corresponding to the active tab to get its text content
+                         // Prioritize sidebar button text if available
+                         const activeSidebarButton = document.querySelector(`.sidebar-nav-item[data-tab="${tabId}"] span`);
+                         const activeFooterButton = document.querySelector(`.footer-nav-item[data-tab="${tabId}"] span`);
+                         let buttonText = '';
+
+                         if (activeSidebarButton && activeSidebarButton.textContent) {
+                             buttonText = activeSidebarButton.textContent.trim();
+                         } else if (activeFooterButton && activeFooterButton.textContent) {
+                              buttonText = activeFooterButton.textContent.trim();
+                         }
+
+                         if (buttonText) {
+                              headerTitle.textContent = buttonText;
+                         } else if (tabId === 'feed-view') {
+                             headerTitle.textContent = 'ホーム'; // Default for feed
+                         } else {
+                             // Fallback if button text not found (e.g., use capitalized tabId)
+                             // Replace hyphens, capitalize first letter
+                             const formattedTitle = tabId.replace('-view', '').replace(/-/g, ' ')
+                                                       .replace(/\b\w/g, l => l.toUpperCase());
+                             headerTitle.textContent = formattedTitle || 'Starlist'; // Fallback title
+                         }
+                     }
+
 
                     // Update active state for all corresponding buttons (sidebar and footer)
                     allTabButtons.forEach(button => {
-                         if(button) { // Check if button exists
+                        if(button) { // Check if button exists
                             if (button.dataset.tab === tabId) {
                                 button.classList.add('active');
                             } else {
                                 button.classList.remove('active');
                             }
-                         }
+                        }
                     });
+
+                     // Scroll to top of the page when switching tabs
+                     window.scrollTo(0, 0);
                 }
 
                 // Add event listeners to all tab buttons
@@ -1418,32 +1261,42 @@
                         button.addEventListener('click', function(e) {
                             e.preventDefault(); // Prevent default link behavior
                             const tabId = this.dataset.tab;
+                            if (!tabId) {
+                                console.warn("Button clicked without a data-tab attribute:", this);
+                                return;
+                            }
                             showTab(tabId);
-                            closeSidebar(); // Close sidebar after clicking a tab on mobile
+                            // Close sidebar after clicking a tab on mobile, if it's open
+                            if (window.innerWidth < 768 && sidebar?.classList.contains('active')) {
+                                closeSidebar();
+                            }
                         });
                     }
                 });
 
-                // Initial setup: Show the first tab ('feed-view')
-                if (sections.length > 0) {
-                    // Find the initially active button in sidebar or footer
-                    const initialActiveButton = document.querySelector('.sidebar-nav-item.active[data-tab], .footer-nav-item.active[data-tab]');
-                    let initialTabId = 'feed-view'; // Default to feed-view
+                // --- Initial Setup ---
+                // Determine the initial tab to show
+                 let initialTabId = 'feed-view'; // Default to feed-view
+                 // Example: Check URL hash for initial tab
+                 // if (window.location.hash && window.location.hash.length > 1) {
+                 //     const hashTab = window.location.hash.substring(1) + '-view';
+                 //     if (document.getElementById(hashTab)) {
+                 //        initialTabId = hashTab;
+                 //     }
+                 // }
 
-                    if (initialActiveButton && initialActiveButton.dataset.tab) {
-                        initialTabId = initialActiveButton.dataset.tab;
-                    } else if (allTabButtons.length > 0) {
-                         // Fallback to the first button's tab if no active one is found
-                         const firstButton = document.querySelector('[data-tab]'); // Get the first button with data-tab
-                         if(firstButton && firstButton.dataset.tab) initialTabId = firstButton.dataset.tab;
-                    }
-                     showTab(initialTabId); // Show the determined initial tab
-                }
+                 // Ensure the initial tab exists before showing it
+                 if (!document.getElementById(initialTabId)) {
+                     console.warn(`Initial tab "${initialTabId}" not found. Defaulting to feed-view.`);
+                     initialTabId = 'feed-view';
+                 }
+                 showTab(initialTabId); // Show the initial tab
+
 
             } catch (error) {
-                console.error("Error initializing page:", error);
-                // Optionally display an error message to the user
-                // document.body.innerHTML = '<p style="color: red; padding: 1rem;">ページ表示中にエラーが発生しました。</p>';
+                console.error("ページ初期化中にエラーが発生しました:", error);
+                // Optionally display a user-friendly error message
+                // document.body.innerHTML = '<p style="color: red; padding: 1rem; text-align: center;">エラーが発生しました。ページを再読み込みしてください。</p>';
             }
         });
     </script>
